@@ -1,0 +1,106 @@
+@import "./base";
+
+
+
+.ac-anchor {
+  position: absolute;
+  box-sizing: border-box;
+
+
+  &.default {
+
+    width: 20px;
+    height: 20px;
+    transform: scale(0);
+
+    transition: transform .2s ease-in-out;
+    transform-origin: center center;
+
+
+    &.visible {
+
+      transform: scale(1);
+    }
+
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+  }
+}
+
+$line-width: 2px;
+$line-ending-radius: $line-width/2;
+
+.ac-connector {
+
+  position: absolute;
+  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  right: 0;
+
+  &.default {
+
+
+
+    .line {
+
+      transform-origin: $line-width/2 $line-width/2;
+      background-color: black;
+      border: none;
+      border-radius: $line-ending-radius;
+      height: $line-width;
+      box-sizing: border-box;
+      top: -1 * $line-width/2;
+      left: -1 * $line-width/2;
+      position: absolute;
+
+
+
+      //transition: scaleX .2s ease-in-out;
+
+      &.visible {
+        //transform: scaleX(1);
+      }
+    }
+
+  }
+
+}
+
+.ac-callout-body {
+
+  position: absolute;
+  box-sizing: border-box;
+  top: 200px;
+  left: 200px;
+
+  &.default {
+    border: 0px solid black;
+  }
+}
+
+
+
+.ac-welding-seam {
+  position: absolute;
+  box-sizing: border-box;
+  &.default {
+
+    background-color: black;
+    border-radius: $line-ending-radius;
+
+    &.west {
+      width: $line-width;
+    }
+    &.north {
+      height: $line-width;
+    }
+    &.east {
+      width: $line-width;
+    }
+    &.south {
+      height: $line-width;
+    }
+  }
+}
+

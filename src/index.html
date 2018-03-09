@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        #app {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            bottom: 0;
+            left: 0;
+        }
+
+        #el_1 {
+
+            position: absolute;
+            left: 200px;
+            top: 200px;
+        }
+
+        .callout-body {
+            padding: 12px;
+        }
+
+    </style>
+    <link rel="stylesheet" type="text/css" href="../dist/archer.callouts.css">
+</head>
+<body>
+<div id="app">
+    <button onclick="toggleCallout()">on/off</button>
+    <span id="el_1">hello</span>
+</div>
+
+<script type="text/javascript" src="../dist/archer.callouts.js"></script>
+<script type="text/javascript">
+
+    var callout;
+    var targetEl = document.getElementById('el_1');
+
+    var onMouseDown = function(evt) {
+
+
+
+        var dragStart = {
+            x: evt.clientX,
+            y: evt.clientY
+        };
+
+        var elDragStartPos =  {
+            x: targetEl.getBoundingClientRect().left,
+            y: targetEl.getBoundingClientRect().top
+        };
+
+
+        var onMouseMove = function(evt) {
+
+            var delta = {
+                x: evt.clientX - dragStart.x,
+                y: evt.clientY - dragStart.y
+            };
+
+            targetEl.style.left = (elDragStartPos.x + delta.x) + 'px';
+            targetEl.style.top = (elDragStartPos.y + delta.y) + 'px';
+
+            callout.updatePosition();
+        };
+
+        var onMouseUp = function (evt) {
+
+            document.body.removeEventListener('mousemove', onMouseMove);
+            document.body.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.body.addEventListener('mousemove', onMouseMove);
+
+        document.body.addEventListener('mouseup', onMouseUp);
+    };
+
+    targetEl.addEventListener('mousedown', onMouseDown);
+
+
+    function toggleCallout() {
+
+        if( !callout.visible) {
+            callout.show();
+            callout.updatePosition();
+        } else {
+            callout.hide();
+        }
+
+
+    }
+
+    window.onload = function (e) {
+
+        var calloutManager = new ArcherCallouts.CalloutManager();
+
+        //var cl = new ArcherCallouts.Callout();
+        callout = calloutManager.create();
+        callout.bind(targetEl);
+
+        var section = callout.sections[0];
+        section.content = '<div class="callout-body">hello</div>';
+
+        callout.show();
+        callout.updatePosition();
+
+    };
+</script>
+</body>
+</html>
