@@ -9,7 +9,7 @@ export class CalloutManager {
     constructor() {
     }
 
-    public create(): Callout {
-        return new Callout();
+    public create(container:HTMLElement= null): Callout {
+        return new Callout(container);
     }
 }

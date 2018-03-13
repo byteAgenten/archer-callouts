@@ -4,12 +4,13 @@ import {Callout} from "./callout";
 import {WeldingSeamView, DefaultWeldingSeamView} from "./welding-seam-view";
 export class Connector {
 
-    private _anchor:Anchor = new Anchor();
+    private _anchor:Anchor ;
     private _view:ConnectorView;
     private _weldingSeamView:WeldingSeamView;
 
 
     constructor(private _callout:Callout) {
+        this._anchor = new Anchor(_callout);
         this._view = new DefaultConnectorView(_callout);
         this._weldingSeamView = new DefaultWeldingSeamView(_callout);
     }

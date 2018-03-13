@@ -1,5 +1,6 @@
 import {Callout} from "./callout";
-import {Point} from "./Point";
+import {Point} from "./utils";
+
 export abstract class ConnectorView {
 
     protected _connectorEl: HTMLElement;
@@ -10,7 +11,7 @@ export abstract class ConnectorView {
     }
 
     public show(): void {
-        document.body.appendChild(this._connectorEl);
+        this._callout.container.appendChild(this._connectorEl);
     }
 
     public hide(): void {
@@ -95,15 +96,23 @@ export class DefaultConnectorView extends ConnectorView {
         return this._lineWidth;
     }
 
+    /**
+     * Calculates the rotation degree 0=right, PI/2=top, PI=left, 1.5PI=bottom, 2PI = right
+     */
     private calcRad() {
 
         let weldingPoint = this._callout.body.view.weldingPoint;
-        let anchorBounds = this._callout.connector.anchor.view.bounds;
+        //let anchorBounds = this._callout.connector.anchor.view.bounds;
 
+        this._anchorCenterPoint = this._callout.connector.anchor.view.center;
+
+
+        /*
         this._anchorCenterPoint = new Point(
             anchorBounds.left + anchorBounds.width / 2,
             anchorBounds.top + anchorBounds.height / 2
         );
+        */
 
         let a = weldingPoint.x - this._anchorCenterPoint.x;
         let b = weldingPoint.y - this._anchorCenterPoint.y;

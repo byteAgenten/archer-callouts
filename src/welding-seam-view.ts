@@ -1,6 +1,6 @@
 import {Callout} from "./callout";
-import {addClass, removeClass} from "./utils";
-import {Point} from "./Point";
+import {addClass, removeClass, Direction} from "./utils";
+
 export abstract class WeldingSeamView {
 
     protected _el: HTMLElement;
@@ -13,7 +13,7 @@ export abstract class WeldingSeamView {
 
     public show(): void {
 
-        document.body.appendChild(this._el);
+        this._callout.container.appendChild(this._el);
     }
 
     public hide(): void {
@@ -29,16 +29,7 @@ export abstract class WeldingSeamView {
 }
 
 
-export enum Direction {
-    North,
-    NorthEast,
-    East,
-    SouthEast,
-    South,
-    SouthWest,
-    West,
-    NorthWest
-}
+
 
 export class DefaultWeldingSeamView extends WeldingSeamView {
 
@@ -135,10 +126,8 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         let bodyBounds = this._callout.body.bounds;
 
         let weldingPoint = this._callout.body.view.weldingPoint;
-        let anchorPoint = new Point(
-            anchorBounds.left + anchorBounds.width / 2,
-            anchorBounds.top + anchorBounds.height / 2
-        );
+        let anchorPoint = this._callout.connector.anchor.view.center;
+
 
         let a = weldingPoint.x - anchorPoint.x;
         let b = weldingPoint.y - anchorPoint.y;
@@ -153,14 +142,14 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         this._el.style.width = null;
         this._el.style.height = null;
 
-        if (anchorBounds.right < bodyBounds.left) {
+        if (anchorBounds.left + anchorBounds.width < bodyBounds.left) {
 
             if (rad < -1 * Math.PI / 4) {
 
                 this._transformOrigin = Direction.SouthWest;
                 weldSide = Direction.South;
 
-                this._el.style.top = (bodyBounds.bottom - this._callout.connector.view.lineWidth) + 'px';
+                this._el.style.top = (bodyBounds.top + bodyBounds.height - this._callout.connector.view.lineWidth) + 'px';
                 this._el.style.width = bodyBounds.width + 'px';
                 this._el.style.left = bodyBounds.left + 'px';
 
@@ -178,7 +167,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 let b = this._callout.body.view.bounds;
                 let anchorCenter = this._callout.connector.anchor.view.center;
 
-                this._transformOrigin = anchorCenter.y > b.bottom ? Direction.SouthWest : (anchorCenter.y < b.top ? Direction.NorthWest : Direction.West);
+                this._transformOrigin = anchorCenter.y > b.top + b.height ? Direction.SouthWest : (anchorCenter.y < b.top ? Direction.NorthWest : Direction.West);
                 weldSide = Direction.West;
 
                 this._el.style.top = bodyBounds.top + 'px';
@@ -193,7 +182,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 this._transformOrigin = Direction.SouthEast;
                 weldSide = Direction.South;
 
-                this._el.style.top = (bodyBounds.bottom - this._callout.connector.view.lineWidth) + 'px';
+                this._el.style.top = (bodyBounds.top + bodyBounds.height - this._callout.connector.view.lineWidth) + 'px';
                 this._el.style.width = bodyBounds.width + 'px';
                 this._el.style.left = bodyBounds.left + 'px';
 
@@ -211,7 +200,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 let b = this._callout.body.view.bounds;
                 let anchorCenter = this._callout.connector.anchor.view.center;
 
-                this._transformOrigin = anchorCenter.y > b.bottom ? Direction.SouthEast : (anchorCenter.y < b.top ? Direction.NorthEast : Direction.East);
+                this._transformOrigin = anchorCenter.y > b.top + b.height ? Direction.SouthEast : (anchorCenter.y < b.top ? Direction.NorthEast : Direction.East);
                 weldSide = Direction.East;
 
                 this._el.style.top = (bodyBounds.top) + 'px';

@@ -1,6 +1,6 @@
 import {BodyView, DefaultBodyView} from "./body-view";
 import {Callout} from "./callout";
-import {Point} from "./Point";
+
 export class Body {
 
     private _view:BodyView;

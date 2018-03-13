@@ -1,8 +1,13 @@
-import {addClass, removeClass} from "./utils";
-import {Point} from "./Point";
+import {addClass, removeClass, relBounds, Point} from "./utils";
+
+import {Callout} from "./callout";
 export abstract class AnchorView {
 
     protected _anchorEl:HTMLElement;
+
+
+    constructor(protected _callout:Callout) {
+    }
 
     public moveTo(left: number, top: number) {
 
@@ -11,7 +16,7 @@ export abstract class AnchorView {
     }
 
     public show():void {
-        document.body.appendChild(this._anchorEl);
+        this._callout.container.appendChild(this._anchorEl);
     }
 
     public hide():void {
@@ -19,7 +24,7 @@ export abstract class AnchorView {
     }
 
     get bounds():ClientRect {
-        return this._anchorEl.getBoundingClientRect();
+        return relBounds(this._callout.container, this._anchorEl);
     }
 
     public abstract fadeIn():Promise<void>;
@@ -30,8 +35,8 @@ export abstract class AnchorView {
 export class DefaultAnchorView extends AnchorView {
 
 
-    constructor() {
-        super();
+    constructor(callout:Callout) {
+        super(callout);
         this._anchorEl = document.createElement('div');
         this._anchorEl.setAttribute('class', 'ac-anchor default');
     }
@@ -80,4 +85,6 @@ export class DefaultAnchorView extends AnchorView {
             removeClass(this._anchorEl, 'visible');
         });
     }
+
+
 }

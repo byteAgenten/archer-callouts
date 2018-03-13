@@ -7,10 +7,12 @@
     <style>
         #app {
             position: absolute;
-            top: 30px;
-            right: 30px;
-            bottom: 0;
-            left: 0;
+            top: 100px;
+            right: 50px;
+            bottom: 20px;
+            left: 80px;
+
+            background-color: azure;
         }
 
         #el_1 {
@@ -38,27 +40,32 @@
 
     var callout;
     var targetEl = document.getElementById('el_1');
+    var container = document.getElementById('app');
 
     var onMouseDown = function(evt) {
 
+        var containerBounds = container.getBoundingClientRect();
+
+        console.log(containerBounds);
 
 
         var dragStart = {
-            x: evt.clientX,
-            y: evt.clientY
+            x: evt.clientX - containerBounds.left,
+            y: evt.clientY - containerBounds.top
         };
 
         var elDragStartPos =  {
-            x: targetEl.getBoundingClientRect().left,
-            y: targetEl.getBoundingClientRect().top
+            x: targetEl.getBoundingClientRect().left - containerBounds.left,
+            y: targetEl.getBoundingClientRect().top - containerBounds.top
         };
+
 
 
         var onMouseMove = function(evt) {
 
             var delta = {
-                x: evt.clientX - dragStart.x,
-                y: evt.clientY - dragStart.y
+                x: evt.clientX - containerBounds.left - dragStart.x,
+                y: evt.clientY - containerBounds.top - dragStart.y
             };
 
             targetEl.style.left = (elDragStartPos.x + delta.x) + 'px';
@@ -98,7 +105,7 @@
         var calloutManager = new ArcherCallouts.CalloutManager();
 
         //var cl = new ArcherCallouts.Callout();
-        callout = calloutManager.create();
+        callout = calloutManager.create(document.getElementById('app'));
         callout.bind(targetEl);
 
         var section = callout.sections[0];

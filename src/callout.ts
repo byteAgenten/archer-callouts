@@ -6,16 +6,21 @@ import {BodySection} from "./body-section";
 
 export class Callout {
 
+    private _container:HTMLElement;
     private _connector: Connector;
     private _body: Body;
     private _visible: boolean = false;
 
-    constructor() {
+    constructor(container:HTMLElement) {
         console.log('New callout');
+        this._container = container != null ? container : document.body;
         this._connector = new Connector(this);
         this._body = new Body(this);
     }
 
+    get container(): HTMLElement {
+        return this._container;
+    }
 
     get body(): Body {
         return this._body;
