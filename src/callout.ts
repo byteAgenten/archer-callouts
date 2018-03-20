@@ -6,12 +6,12 @@ import {BodySection} from "./body-section";
 
 export class Callout {
 
-    private _container:HTMLElement;
+    private _container: HTMLElement;
     private _connector: Connector;
     private _body: Body;
     private _visible: boolean = false;
 
-    constructor(container:HTMLElement) {
+    constructor(container: HTMLElement) {
         console.log('New callout');
         this._container = container != null ? container : document.body;
         this._connector = new Connector(this);
@@ -30,13 +30,26 @@ export class Callout {
         this._connector.anchor.element = element;
     }
 
-    public updatePosition(bodyDrag:boolean = false): void {
+    public updatePosition(bodyDrag: boolean = false): void {
 
-        if( !bodyDrag) this._body.view.updatePosition();
-        this._connector.updatePosition();
+        this._connector.anchor.view.calculateLayout();
+        if (!bodyDrag) this._body.view.calculateLayout();
+        this._connector.weldingSeamView.calculateLayout();
+        this._connector.view.calculateLayout();
+
+
+        this._connector.anchor.view.updateLayout();
+        this._connector.view.updateLayout();
+        this._connector.weldingSeamView.updateLayout();
+        if( !bodyDrag) this.body.view.updateLayout();
+        this._connector.anchor.view.updateLayout();
     }
 
     public show(): void {
+
+
+        this._body.view.show();
+        this._connector.anchor.view.show();
 
 
         this.updatePosition();
@@ -46,24 +59,28 @@ export class Callout {
         }).then(() => {
 
             return this.connector.weldingSeamView.fadeIn();
-        }).then(()=> {
-            console.log('yyy');
+        }).then(() => {
+
+            return this._body.view.fadeIn();
         });
         //this._connector.show();
-        this._body.view.show();
+
         this._visible = true;
     }
 
     public hide(): void {
 
-        this.connector.weldingSeamView.fadeOut().then(() => {
+        this.body.view.fadeOut().then(() => {
+
+            return this.connector.weldingSeamView.fadeOut();
+        }).then(() => {
 
             return this.connector.view.fadeOut();
         }).then(() => {
             return this.connector.anchor.view.fadeOut();
         });
 
-        this.body.view.hide();
+
         this._visible = false;
     }
 

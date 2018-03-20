@@ -20,14 +20,46 @@
             position: absolute;
             left: 200px;
             top: 200px;
+            background-color: red;
+        }
+
+        .callout-header {
+            padding: 4px 8px;
+            background-color: lightgreen;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
 
         .callout-body {
-            padding: 12px;
+            padding: 4px 8px;
+            background-color: gold;
         }
 
+        .ac-callout-body-sections {
+            padding: 0px;
+        }
+
+        .ac-callout-body.weld-west .ac-callout-body-sections {
+            padding: 0 0 0 8px;
+
+        }
+
+
+        .ac-callout-body.weld-east .ac-callout-body-sections {
+            padding: 0 8px 0 0;
+        }
+
+        .ac-callout-body.weld-south .ac-callout-body-sections {
+            padding: 0 0 8px 0;
+        }
+
+        .ac-callout-body.weld-north .ac-callout-body-sections {
+            padding: 8px 0 0 0;
+        }
+
+
     </style>
-    <link rel="stylesheet" type="text/css" href="../dist/archer.callouts.css">
+    <!-- link rel="stylesheet" type="text/css" href="../dist/archer.callouts.css" -->
 </head>
 <body>
 <div id="app">
@@ -35,7 +67,6 @@
     <span id="el_1">hello</span>
 </div>
 
-<script type="text/javascript" src="../dist/archer.callouts.js"></script>
 <script type="text/javascript">
 
     var callout;
@@ -60,8 +91,7 @@
         };
 
 
-
-        var onMouseMove = function(evt) {
+        var handleDragEvent = function(evt) {
 
             var delta = {
                 x: evt.clientX - containerBounds.left - dragStart.x,
@@ -74,7 +104,14 @@
             callout.updatePosition();
         };
 
+        var onMouseMove = function(evt) {
+
+            handleDragEvent(evt);
+        };
+
         var onMouseUp = function (evt) {
+
+            handleDragEvent(evt);
 
             document.body.removeEventListener('mousemove', onMouseMove);
             document.body.removeEventListener('mouseup', onMouseUp);
@@ -92,7 +129,6 @@
 
         if( !callout.visible) {
             callout.show();
-            callout.updatePosition();
         } else {
             callout.hide();
         }
@@ -108,8 +144,11 @@
         callout = calloutManager.create(document.getElementById('app'));
         callout.bind(targetEl);
 
-        var section = callout.sections[0];
-        section.content = '<div class="callout-body">hello</div>';
+        var headerSection = callout.sections[0];
+        headerSection.content = '<div class="callout-header">hello</div>';
+
+        var bodySection = callout.sections[1];
+        bodySection.content = '<div class="callout-body">body</div>';
 
         callout.show();
         callout.updatePosition();

@@ -1,5 +1,4 @@
 import { DefaultAnchorView } from "./anchor-view";
-import { relPos } from "./utils";
 export var Anchor = (function () {
     function Anchor(_callout) {
         this._callout = _callout;
@@ -30,12 +29,6 @@ export var Anchor = (function () {
         enumerable: true,
         configurable: true
     });
-    Anchor.prototype.updatePosition = function () {
-        var pos = relPos(this._callout.container, this._element);
-        var left = pos.x + 20;
-        var top = pos.y - 20;
-        this._view.moveTo(left, top);
-    };
     Anchor.prototype.show = function () {
         this._view.fadeIn();
     };

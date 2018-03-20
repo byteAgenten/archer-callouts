@@ -27,32 +27,42 @@ export var Callout = (function () {
     };
     Callout.prototype.updatePosition = function (bodyDrag) {
         if (bodyDrag === void 0) { bodyDrag = false; }
+        this._connector.anchor.view.calculateLayout();
         if (!bodyDrag)
-            this._body.view.updatePosition();
-        this._connector.updatePosition();
+            this._body.view.calculateLayout();
+        this._connector.weldingSeamView.calculateLayout();
+        this._connector.view.calculateLayout();
+        this._connector.anchor.view.updateLayout();
+        this._connector.view.updateLayout();
+        this._connector.weldingSeamView.updateLayout();
+        if (!bodyDrag)
+            this.body.view.updateLayout();
+        this._connector.anchor.view.updateLayout();
     };
     Callout.prototype.show = function () {
         var _this = this;
+        this._body.view.show();
+        this._connector.anchor.view.show();
         this.updatePosition();
         this.connector.anchor.view.fadeIn().then(function () {
             return _this.connector.view.fadeIn();
         }).then(function () {
             return _this.connector.weldingSeamView.fadeIn();
         }).then(function () {
-            console.log('yyy');
+            return _this._body.view.fadeIn();
         });
         //this._connector.show();
-        this._body.view.show();
         this._visible = true;
     };
     Callout.prototype.hide = function () {
         var _this = this;
-        this.connector.weldingSeamView.fadeOut().then(function () {
+        this.body.view.fadeOut().then(function () {
+            return _this.connector.weldingSeamView.fadeOut();
+        }).then(function () {
             return _this.connector.view.fadeOut();
         }).then(function () {
             return _this.connector.anchor.view.fadeOut();
         });
-        this.body.view.hide();
         this._visible = false;
     };
     Object.defineProperty(Callout.prototype, "visible", {

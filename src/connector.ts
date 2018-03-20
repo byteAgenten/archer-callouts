@@ -40,9 +40,9 @@ export class Connector {
     updatePosition() {
 
 
-        this.anchor.updatePosition();
-        this._view.update();
-        this._weldingSeamView.update();
+        //this.anchor.updatePosition();
+        //this._view.update();
+        //this._weldingSeamView.update();
     }
 
     public show():void {

@@ -1,11 +1,20 @@
 export function addClass(element, clazz) {
-    element.setAttribute('class', element.getAttribute('class') + ' ' + clazz);
+    var classContent = element.getAttribute('class');
+    if (classContent == null) {
+        element.setAttribute('class', '');
+        classContent = '';
+    }
+    if (classContent.length > 0)
+        classContent += ' ';
+    classContent += clazz;
+    element.setAttribute('class', classContent);
 }
 export function removeClass(element, clazz) {
     var classContent = element.getAttribute('class');
-    var classIndex = classContent.indexOf(clazz);
+    var classIndex = classContent.search('\\b' + clazz + '\\b');
     if (classIndex >= 0) {
         classContent = classContent.substring(0, classIndex) + ' ' + classContent.substring(classIndex + clazz.length, classContent.length);
+        classContent = classContent.replace(/( ){2,}/g, ' '); //Remove potentially double blanks
         element.setAttribute('class', classContent);
     }
 }
@@ -48,6 +57,8 @@ export var Direction;
 })(Direction || (Direction = {}));
 export var Point = (function () {
     function Point(x, y) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
         this.x = x;
         this.y = y;
     }
@@ -64,6 +75,10 @@ export var Point = (function () {
 }());
 export var Rect = (function () {
     function Rect(_x1, _y1, _width, _height) {
+        if (_x1 === void 0) { _x1 = 0; }
+        if (_y1 === void 0) { _y1 = 0; }
+        if (_width === void 0) { _width = 0; }
+        if (_height === void 0) { _height = 0; }
         this._x1 = _x1;
         this._y1 = _y1;
         this._width = _width;
@@ -97,6 +112,10 @@ export var Rect = (function () {
         get: function () {
             return this._width;
         },
+        set: function (v) {
+            this._width = v;
+            this._x2 = this._x1 + this._width;
+        },
         enumerable: true,
         configurable: true
     });
@@ -125,6 +144,13 @@ export var Rect = (function () {
         set: function (v) {
             this._y2 = v;
             this._y1 = this._y2 - this._height;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Rect.prototype, "center", {
+        get: function () {
+            return new Point(this.x1 + this.width / 2, this.y1 + this.height / 2);
         },
         enumerable: true,
         configurable: true

@@ -1,14 +1,18 @@
 import {Callout} from "./callout";
 
 import {BodySection} from "./body-section";
-import {Direction, relBounds, relPos, Point, Rect} from "./utils";
+import {Direction, relBounds, relPos, Point, Rect, removeClass, addClass} from "./utils";
 export abstract class BodyView {
 
     protected _bodyEl: HTMLElement;
+    protected _sectionContainerEl: HTMLElement;
 
-    protected _relativePosition: Point = new Point(50, -50);
+    protected _relativePosition: Point = new Point(50, -80);
+    protected _dragStartRelativePosition: Point = new Point(0, 0);
 
     protected _sections: Array<BodySection> = [];
+
+    private _layoutData: BodyViewLayoutData = new BodyViewLayoutData();
 
     private _mouseDownDestroyFn: any;
     private _mouseUpDestroyFn: any;
@@ -23,6 +27,9 @@ export abstract class BodyView {
     constructor(protected _callout: Callout) {
         this._bodyEl = document.createElement('div');
         this._bodyEl.setAttribute('class', 'ac-callout-body');
+        this._sectionContainerEl = document.createElement('div');
+        this._sectionContainerEl.setAttribute('class', 'ac-callout-body-sections');
+        this._bodyEl.appendChild(this._sectionContainerEl);
 
     }
 
@@ -31,7 +38,7 @@ export abstract class BodyView {
         return relBounds(this._callout.container, this._bodyEl);
     }
 
-    public abstract get weldingPoint(): Point;
+    public abstract calcWeldingPoint(bodyRect: Rect): Point;
 
     public get relativePosition(): Point {
         return this._relativePosition;
@@ -44,14 +51,51 @@ export abstract class BodyView {
     public show(): void {
 
         this._callout.container.appendChild(this._bodyEl);
+        this._bodyEl.style.visibility = 'hidden';
+
         this._bodyEl.addEventListener('mousedown', this.onMouseDown);
     }
 
-    public calcAnchorDistance(rect: Rect): number {
+    protected calcClosestPoint(rect: Rect): Point {
 
+        let quadrant = this.calcQuadrant(rect);
         let anchorCenter = this._callout.connector.anchor.view.center;
 
-        switch (this._currentQuadrant) {
+        switch (quadrant) {
+            case Direction.North: {
+                return new Point(anchorCenter.x, rect.y2);
+            }
+            case Direction.East: {
+                return new Point(rect.x1, anchorCenter.y);
+            }
+            case Direction.South: {
+                return new Point(anchorCenter.x, rect.y1);
+            }
+            case Direction.West: {
+                return new Point(rect.x2, anchorCenter.y);
+            }
+            case Direction.NorthEast: {
+
+                return new Point(rect.x1, rect.y2);
+            }
+            case Direction.SouthEast: {
+
+                return new Point(rect.x1, rect.y1);
+            }
+            case Direction.SouthWest: {
+
+                return new Point(rect.x2, rect.y1);
+            }
+            case Direction.NorthWest: {
+
+                return new Point(rect.x2, rect.y2);
+            }
+        }
+    }
+
+    protected calcAnchorDistance(anchorCenter: Point, rect: Rect, quadrant: Direction): number {
+
+        switch (quadrant) {
             case Direction.North: {
                 return anchorCenter.y - rect.y2;
             }
@@ -95,9 +139,6 @@ export abstract class BodyView {
 
     onMouseDown = (evt) => {
 
-        console.log('mousedown');
-
-        let anchorCenter = this._callout.connector.anchor.view.center;
         let containerBounds = this._callout.container.getBoundingClientRect();
 
         document.body.style.webkitUserSelect = 'none';
@@ -105,36 +146,18 @@ export abstract class BodyView {
         this._dragStartPos = new Point(evt.clientX - containerBounds.left, evt.clientY - containerBounds.top);
         this._elDragStartPos = relPos(this._callout.container, this._bodyEl); // new Point(this._bodyEl.getBoundingClientRect().left, this._bodyEl.getBoundingClientRect().top);
 
+        this._dragStartRelativePosition = this._relativePosition;
+
         let onMouseMove = (evt: MouseEvent) => {
 
-            let dragDelta = new Point(evt.clientX, evt.clientY)
-                .sub(new Point(containerBounds.left, containerBounds.top))
-                .sub(this._dragStartPos);
-
-            let viewRect = Rect.fromBounds(this.bounds);
-
-            let newPos = this._elDragStartPos.add(dragDelta);
-            viewRect = viewRect.moveTo(newPos);
-
-            this.protectShelter(anchorCenter, viewRect);
-
-            this._bodyEl.style.left = viewRect.x1 + 'px';
-            this._bodyEl.style.top = viewRect.y1 + 'px';
-
-            setTimeout(() => {
-
-                this._relativePosition.x = this.bounds.left - anchorCenter.x;
-                this._relativePosition.y = this.bounds.top - anchorCenter.y;
-
-                //console.log(this._relativePosition);
-            });
-
-            this._callout.updatePosition(true);
+            this.handlDragEvent(evt);
         };
         let onMouseUp = (evt: MouseEvent) => {
 
+            this.handlDragEvent(evt);
+
             document.body.removeEventListener('mousemove', onMouseMove);
-            document.body.removeEventListener('mousup', onMouseUp);
+            document.body.removeEventListener('mouseup', onMouseUp);
 
 
             document.body.style.webkitUserSelect = null;
@@ -144,7 +167,7 @@ export abstract class BodyView {
         document.body.addEventListener('mouseup', onMouseUp);
     };
 
-    private calcShelterOffset(p:Point, rect:Rect):Point {
+    private calcShelterOffset(p: Point, rect: Rect): Point {
 
         let delta = new Point(Math.abs(rect.x1 - p.x), Math.abs(rect.y2 - p.y));
         let distance = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
@@ -153,45 +176,38 @@ export abstract class BodyView {
         return offset;
     }
 
-    private calcAngle(p: Point, rect: Rect, direction: Direction): number {
-
-        switch (this._currentQuadrant) {
-            case Direction.NorthEast: {
-
-                let a = rect.x1 - p.x;
-                let b = p.y - rect.y2;
-                let c = Math.sqrt(a * a + b * b);
-
-                let angle = Math.asin(b / c);
-                return angle;
-
-            }
-        }
-        return 0;
-    }
-
-    public updatePosition(): void {
+    public calculateLayout(currentRect: Rect = null): void {
 
         let anchorCenter = this._callout.connector.anchor.view.center;
 
+
+        console.log('Relpos');
+        console.log(this._relativePosition);
         let viewPos = anchorCenter.add(this._relativePosition);
 
-        let currentRect = Rect.fromBounds(this.bounds);
+        if (currentRect == null) currentRect = Rect.fromBounds(this.bounds);
         let targetRect = currentRect.moveTo(viewPos);
 
 
         let containerBounds = this._callout.container.getBoundingClientRect();
-        if(!(0 <= targetRect.x1 && targetRect.x2 < containerBounds.width)) {
+        if (!(0 <= targetRect.x1 && targetRect.x2 < containerBounds.width)) {
             targetRect.x1 = currentRect.x1;
         }
-        if(!(0 <= targetRect.y1 && targetRect.y2 < containerBounds.height)) {
+        if (!(0 <= targetRect.y1 && targetRect.y2 < containerBounds.height)) {
             targetRect.y1 = currentRect.y1;
         }
-        this.protectShelter(anchorCenter, targetRect);
-        this._bodyEl.style.left = targetRect.x1 + 'px';
-        this._bodyEl.style.top = targetRect.y1 + 'px';
 
+        this._layoutData.quadrant = this.calcQuadrant(targetRect);
+        this._layoutData.rect = this.protectShelter(anchorCenter, targetRect, this._layoutData.quadrant);
+        this._layoutData.closestPoint = this.calcClosestPoint(targetRect);
+    }
 
+    public updateLayout(): void {
+
+        this._bodyEl.style.left = this._layoutData.rect.x1 + 'px';
+        this._bodyEl.style.top = this._layoutData.rect.y1 + 'px';
+
+        this.setWeldClasses();
     }
 
     private checkBorderCollision(rect: Rect): boolean {
@@ -203,6 +219,7 @@ export abstract class BodyView {
 
 
     public hide(): void {
+
         this._bodyEl.removeEventListener('mousedown', this.onMouseDown);
         this._bodyEl.remove();
     }
@@ -210,14 +227,13 @@ export abstract class BodyView {
     abstract calcQuadrant(rect: Rect): Direction;
 
 
-    private protectShelter(anchorCenter:Point, viewRect: Rect) {
+    private protectShelter(anchorCenter: Point, viewRect: Rect, quadrant: Direction): Rect {
 
-        this._currentQuadrant = this.calcQuadrant(viewRect);
-        let distance = this.calcAnchorDistance(viewRect);
+        let distance = this.calcAnchorDistance(anchorCenter, viewRect, quadrant);
 
         if (distance <= this._callout.connector.anchor.shelterRadius) {
 
-            switch (this._currentQuadrant) {
+            switch (quadrant) {
                 case Direction.North: {
                     viewRect.y2 = anchorCenter.y - this._callout.connector.anchor.shelterRadius;
                     break;
@@ -265,6 +281,47 @@ export abstract class BodyView {
                 }
             }
         }
+        return viewRect;
+    }
+
+
+    get layoutData(): BodyViewLayoutData {
+        return this._layoutData;
+    }
+
+    public abstract fadeIn(): Promise<void>;
+
+    public abstract fadeOut(): Promise<void>;
+
+    private _currentWeldSide: Direction = Direction.North;
+
+    private setWeldClasses() {
+
+        let weldSide = this._callout.connector.weldingSeamView.weldSide;
+        if (this._currentWeldSide != weldSide) {
+
+            if (this._currentWeldSide != null) removeClass(this._bodyEl, 'weld-' + Direction[this._currentWeldSide].toLowerCase());
+            this._currentWeldSide = weldSide;
+            addClass(this._bodyEl, 'weld-' + Direction[this._currentWeldSide].toLowerCase());
+        }
+    }
+
+    private handlDragEvent(evt: MouseEvent) {
+
+        let containerBounds = this._callout.container.getBoundingClientRect();
+
+        let dragDelta = new Point(evt.clientX, evt.clientY)
+            .sub(new Point(containerBounds.left, containerBounds.top))
+            .sub(this._dragStartPos);
+
+        this._relativePosition = this._dragStartRelativePosition.add(dragDelta);
+        console.log(this._relativePosition);
+
+        this.calculateLayout();
+
+        this.updateLayout();
+
+        this._callout.updatePosition(true);
     }
 }
 
@@ -278,44 +335,59 @@ export class DefaultBodyView extends BodyView {
         let headerSection = new BodySection('header');
         let contentSection = new BodySection('body');
 
-        this._bodyEl.appendChild(headerSection.el);
-        this._bodyEl.appendChild(contentSection.el);
+        this._sectionContainerEl.appendChild(headerSection.el);
+        this._sectionContainerEl.appendChild(contentSection.el);
 
         this._sections.push(headerSection);
         this._sections.push(contentSection);
     }
 
-    public get weldingPoint(): Point {
+    public calcWeldingPoint(bodyRect: Rect = null): Point {
 
+        let direction = this.calcQuadrant(bodyRect);
         let anchorCenter = this._callout.connector.anchor.view.center;
 
-        let bodyBounds = this.bounds;
+        let weldingPoint = new Point(anchorCenter.x, anchorCenter.y);
 
-        let weldingPoint = new Point(0, 0);
-
-        weldingPoint.x = bodyBounds.left;
-
-        if (bodyBounds.top <= anchorCenter.y && anchorCenter.y < bodyBounds.top + bodyBounds.height) {
-            weldingPoint.y = anchorCenter.y;
-        } else {
-
-            if (anchorCenter.y <= bodyBounds.top + bodyBounds.height) {
-                weldingPoint.y = bodyBounds.top;
-            } else {
-                weldingPoint.y = bodyBounds.top + bodyBounds.height;
+        switch (direction) {
+            case Direction.North: {
+                weldingPoint.y = bodyRect.y2;
+                break;
+            }
+            case Direction.NorthEast: {
+                weldingPoint.x = bodyRect.x1;
+                weldingPoint.y = bodyRect.y2;
+                break;
+            }
+            case Direction.East: {
+                weldingPoint.x = bodyRect.x1;
+                break;
+            }
+            case Direction.SouthEast: {
+                weldingPoint.x = bodyRect.x1;
+                weldingPoint.y = bodyRect.y1;
+                break;
+            }
+            case Direction.South: {
+                weldingPoint.y = bodyRect.y1;
+                break;
+            }
+            case Direction.SouthWest: {
+                weldingPoint.x = bodyRect.x2;
+                weldingPoint.y = bodyRect.y1;
+                break;
+            }
+            case Direction.West: {
+                weldingPoint.x = bodyRect.x2;
+                break;
+            }
+            case Direction.NorthWest: {
+                weldingPoint.x = bodyRect.x2;
+                weldingPoint.y = bodyRect.y2;
+                break;
             }
         }
 
-        if (bodyBounds.left <= anchorCenter.x && anchorCenter.x < bodyBounds.left + bodyBounds.width) {
-            weldingPoint.x = anchorCenter.x;
-        } else {
-
-            if (anchorCenter.x <= bodyBounds.left) {
-                weldingPoint.x = bodyBounds.left;
-            } else {
-                weldingPoint.x = bodyBounds.left + bodyBounds.width;
-            }
-        }
         return weldingPoint;
     }
 
@@ -332,27 +404,27 @@ export class DefaultBodyView extends BodyView {
     public calcQuadrant(rect: Rect = null): Direction {
 
         let anchorCenter = this._callout.connector.anchor.view.center;
-        let bodyBounds = rect != null ? rect : Rect.fromBounds(this.bounds);
+        if (rect == null) rect = Rect.fromBounds(this.bounds);
 
         let direction: Direction;
 
-        if (bodyBounds.x1 <= anchorCenter.x && anchorCenter.x < bodyBounds.x2) {
+        if (rect.x1 <= anchorCenter.x && anchorCenter.x < rect.x2) {
 
-            direction = bodyBounds.y1 + bodyBounds.height < anchorCenter.y ? Direction.North : Direction.South;
+            direction = rect.y1 + rect.height < anchorCenter.y ? Direction.North : Direction.South;
 
-        } else if (bodyBounds.y1 <= anchorCenter.y && anchorCenter.y < bodyBounds.y2) {
+        } else if (rect.y1 <= anchorCenter.y && anchorCenter.y < rect.y2) {
 
-            direction = anchorCenter.x < bodyBounds.x1 ? Direction.East : Direction.West;
+            direction = anchorCenter.x < rect.x1 ? Direction.East : Direction.West;
 
-        } else if (anchorCenter.x < bodyBounds.x1 && anchorCenter.y > bodyBounds.y2) {
+        } else if (anchorCenter.x < rect.x1 && anchorCenter.y > rect.y2) {
 
             direction = Direction.NorthEast;
 
-        } else if (anchorCenter.x < bodyBounds.x1 && anchorCenter.y < bodyBounds.y1) {
+        } else if (anchorCenter.x < rect.x1 && anchorCenter.y < rect.y1) {
 
             direction = Direction.SouthEast;
 
-        } else if (anchorCenter.x > bodyBounds.x2 && anchorCenter.y < bodyBounds.y1) {
+        } else if (anchorCenter.x > rect.x2 && anchorCenter.y < rect.y1) {
 
             direction = Direction.SouthWest;
 
@@ -362,5 +434,100 @@ export class DefaultBodyView extends BodyView {
         }
 
         return direction;
+    }
+
+    public fadeIn(): Promise<void> {
+
+        return this.animate(true);
+    }
+
+    public fadeOut(): Promise<void> {
+
+        return this.animate(false).then(() => {
+            this.hide();
+        });
+
+    }
+
+    animate(fadeIn: boolean): Promise<void> {
+
+        return new Promise<void>((resolve, reject) => {
+
+            let startTime = Date.now();
+            let endTime = startTime + 200;
+
+            let xOrigin: string = null;
+            let yOrigin: string = null;
+
+            let transformOrigin;
+
+            let weldSide = this._callout.connector.weldingSeamView.layoutData.weldSide;
+
+            if (weldSide == Direction.West) {
+
+                transformOrigin = "left";
+
+            } else if (weldSide == Direction.North) {
+
+                transformOrigin = "top";
+
+            } else if (weldSide == Direction.East) {
+
+                transformOrigin = "right";
+
+            } else {
+
+                transformOrigin = "bottom";
+            }
+
+            this._sectionContainerEl.style.transformOrigin = transformOrigin;
+
+
+            if (weldSide == Direction.East || weldSide == Direction.West) {
+                this._sectionContainerEl.style.transform = 'translateX(' + (fadeIn ? (weldSide == Direction.East ? 100 : -100) : 0) + '%)';
+            } else {
+                this._sectionContainerEl.style.transform = 'translateY(' + (fadeIn ? (weldSide == Direction.South ? 100 : -100) : 0) + '%)';
+            }
+
+            if (fadeIn) this._bodyEl.style.visibility = 'visible';
+
+            let loop = () => {
+
+                let now = Date.now();
+                let scale = 0;
+
+                if (now < endTime) {
+
+                    let ratio = (now - startTime) / (endTime - startTime);
+                    scale = fadeIn ? ratio : 1 - ratio;
+
+                    requestAnimationFrame(loop);
+
+                } else {
+
+                    scale = fadeIn ? 1 : 0;
+                    this._bodyEl.style.transform = null;
+                    resolve();
+                }
+
+                let translateValue = (weldSide == Direction.East || weldSide == Direction.South ? 1 : -1) * (100 - (scale * 100));
+
+
+                this._sectionContainerEl.style.transform = ((weldSide == Direction.East || weldSide == Direction.West) ? 'translateX(' : 'translateY(') + translateValue + '%)';
+
+            };
+            requestAnimationFrame(loop);
+
+        });
+    }
+}
+
+export class BodyViewLayoutData {
+
+    constructor(public rect: Rect = null, public quadrant: Direction = null, public closestPoint: Point = null) {
+
+        if (rect == null) this.rect = new Rect();
+        if (closestPoint == null) this.closestPoint = new Point();
+
     }
 }

@@ -29,16 +29,6 @@ export class Anchor {
         return this._view;
     }
 
-    updatePosition() {
-
-
-        let pos = relPos(this._callout.container, this._element);
-
-        let left = pos.x + 20;
-        let top = pos.y - 20;
-
-        this._view.moveTo(left, top);
-    }
 
     public show():void {
         this._view.fadeIn();

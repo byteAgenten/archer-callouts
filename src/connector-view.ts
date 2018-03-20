@@ -5,6 +5,8 @@ export abstract class ConnectorView {
 
     protected _connectorEl: HTMLElement;
 
+    protected _layoutData: ConnectorLayoutData = new ConnectorLayoutData();
+
 
     constructor(protected _callout: Callout) {
 
@@ -24,16 +26,16 @@ export abstract class ConnectorView {
 
     public abstract get lineWidth(): number;
 
-    public abstract update(): void;
+    public abstract calculateLayout(): void;
+
+    public abstract updateLayout(): void;
 }
 
 export class DefaultConnectorView extends ConnectorView {
 
     private _lineEl: HTMLElement;
 
-    private _lineWidth: number = -1;
-    private _rad: number = 0;
-    private _anchorCenterPoint: Point;
+    private _lineWidth: number = 2;
     private _scaleX: number = 0;
 
     constructor(_callout: Callout) {
@@ -48,12 +50,57 @@ export class DefaultConnectorView extends ConnectorView {
 
     }
 
+    public calculateLayout() {
+
+        this._layoutData.startPoint = this._callout.connector.anchor.view.center;
+        this._layoutData.endPoint = this._callout.connector.weldingSeamView.layoutData.weldPoint;
+
+
+        //console.log('start');
+        //console.log(this._layoutData.startPoint);
+        //console.log('end');
+        //console.log(this._layoutData.endPoint);
+
+
+        let a2b = this._layoutData.endPoint.sub(this._layoutData.startPoint);
+
+
+
+        this._layoutData.length = Math.sqrt(a2b.x * a2b.x + a2b.y * a2b.y);
+
+        let angle = Math.asin(a2b.y / this._layoutData.length);
+
+        if (a2b.x < 0) angle = (-1 * Math.PI / 2) - (Math.PI / 2 + angle);
+        this._layoutData.angle = angle;
+
+        console.log('angle');
+        console.log(this._layoutData.angle);
+    }
+
+    public updateLayout() {
+
+        this._lineEl.style.width = (this._layoutData.length  + this.lineWidth) + 'px';
+
+        this._connectorEl.style.left = this._layoutData.startPoint.x + 'px';
+        this._connectorEl.style.top = this._layoutData.startPoint.y + 'px';
+
+        this.setScale(1);
+    }
+
+    private setScale(scaleX: number) {
+
+        this._lineEl.style.transform = 'rotate(' + this._layoutData.angle + 'rad) scaleX(' + scaleX + ')';
+    }
+
+
     animate(fadeIn: boolean): Promise<void> {
 
         return new Promise<void>((resolve, reject) => {
 
             let startTime = Date.now();
             let endTime = startTime + 200;
+
+            if (fadeIn) this.setScale(0);
 
             let loop = () => {
 
@@ -69,7 +116,8 @@ export class DefaultConnectorView extends ConnectorView {
                     this._scaleX = fadeIn ? 1 : 0;
                     resolve();
                 }
-                this.updateStyles();
+
+                this.setScale(this._scaleX);
             };
             requestAnimationFrame(loop);
         });
@@ -77,10 +125,7 @@ export class DefaultConnectorView extends ConnectorView {
 
     public fadeIn(): Promise<void> {
 
-        this._scaleX = 0;
-        this.updateStyles();
         this.show();
-
         return this.animate(true);
     }
 
@@ -96,56 +141,18 @@ export class DefaultConnectorView extends ConnectorView {
         return this._lineWidth;
     }
 
-    /**
-     * Calculates the rotation degree 0=right, PI/2=top, PI=left, 1.5PI=bottom, 2PI = right
-     */
-    private calcRad() {
-
-        let weldingPoint = this._callout.body.view.weldingPoint;
-        //let anchorBounds = this._callout.connector.anchor.view.bounds;
-
-        this._anchorCenterPoint = this._callout.connector.anchor.view.center;
-
-
-        /*
-        this._anchorCenterPoint = new Point(
-            anchorBounds.left + anchorBounds.width / 2,
-            anchorBounds.top + anchorBounds.height / 2
-        );
-        */
-
-        let a = weldingPoint.x - this._anchorCenterPoint.x;
-        let b = weldingPoint.y - this._anchorCenterPoint.y;
-
-        let connectorLength = Math.sqrt(a * a + b * b);
-
-        this._lineEl.style.width = (connectorLength + this.lineWidth) + 'px';
-
-
-        let rad = Math.asin((weldingPoint.y - this._anchorCenterPoint.y) / connectorLength);
-
-        if (a < 0) rad = (-1 * Math.PI / 2) - (Math.PI / 2 + rad);
-        this._rad = rad;
-    }
-
-    update() {
-
-        this.calcRad();
-        this.updateStyles();
-
-    }
-
-    updateStyles() {
-
-        this._lineEl.style.transform = 'rotate(' + this._rad + 'rad) scaleX(' + this._scaleX + ')';
-
-        this._connectorEl.style.left = (this._anchorCenterPoint.x) + 'px';
-        this._connectorEl.style.top = this._anchorCenterPoint.y + 'px';
-
-    }
 
     public show(): void {
         super.show();
         if (this._lineWidth < 0) this._lineWidth = this._lineEl.getBoundingClientRect().height as number;
+    }
+}
+
+export class ConnectorLayoutData {
+
+    constructor(public startPoint: Point = null, public endPoint: Point = null, public angle: number = 0, public length: number = 0) {
+
+        if (this.startPoint == null) this.startPoint = new Point();
+        if (this.endPoint == null) this.endPoint = new Point();
     }
 }

@@ -40,9 +40,9 @@ export var Connector = (function () {
         configurable: true
     });
     Connector.prototype.updatePosition = function () {
-        this.anchor.updatePosition();
-        this._view.update();
-        this._weldingSeamView.update();
+        //this.anchor.updatePosition();
+        //this._view.update();
+        //this._weldingSeamView.update();
     };
     Connector.prototype.show = function () {
         this.anchor.show();

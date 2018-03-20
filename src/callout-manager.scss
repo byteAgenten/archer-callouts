@@ -9,21 +9,40 @@
 
   &.default {
 
-    width: 20px;
-    height: 20px;
-    transform: scale(0);
+    width: 16px;
+    height: 16px;
+    background-color: transparent;
 
-    transition: transform .2s ease-in-out;
-    transform-origin: center center;
-
-
-    &.visible {
-
-      transform: scale(1);
+    .inner-circle {
+      width: 40%;
+      height: 40%;
+      left: 50%;
+      top: 50%;
+      margin-left: -20%;
+      margin-top: -20%;
+      background-color: black;
+      border-radius: 50%;
+      position: absolute;
+      box-sizing: border-box;
     }
 
-    background-color: rgba(0,0,0,0.5);
-    border-radius: 10px;
+    .outer-circle {
+      width: 90%;
+      height: 90%;
+      left: 50%;
+      top: 50%;
+      margin-left: -45%;
+      margin-top: -45%;
+      background-color: transparent;
+      border-radius: 50%;
+      border: 2px solid black;
+      position: absolute;
+      box-sizing: border-box;
+
+
+    }
+
+
   }
 }
 
@@ -73,10 +92,15 @@ $line-ending-radius: $line-width/2;
   box-sizing: border-box;
   top: 200px;
   left: 200px;
+  overflow: hidden;
 
   &.default {
     border: 0px solid black;
   }
+}
+
+.ac-callout-body-sections {
+
 }
 
 

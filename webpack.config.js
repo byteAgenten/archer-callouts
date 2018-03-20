@@ -10,7 +10,8 @@ var path = require('path');
 module.exports = {
 
     entry: {
-        'archer.callouts': ['./src/archer-callouts.ts']
+        'archer.callouts': './src/archer-callouts.ts',
+        'archer.callouts.min': './src/archer-callouts.ts'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -57,6 +58,11 @@ module.exports = {
         new ExtractTextPlugin({
             filename: "[name].css",
             disable: false
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            include: /\.min\.js$/,
+            minimize: false,
+            compress: false
         })
 
     ]

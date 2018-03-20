@@ -3,17 +3,19 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { addClass, removeClass, relBounds, Point } from "./utils";
+import { addClass, relBounds, Point, Rect } from "./utils";
 export var AnchorView = (function () {
     function AnchorView(_callout) {
         this._callout = _callout;
+        this._layoutData = new AnchorLayoutData();
+        this._offset = new Point(0, 0);
+        this._anchorEl = document.createElement('div');
+        this._anchorEl.setAttribute('class', 'ac-anchor');
     }
-    AnchorView.prototype.moveTo = function (left, top) {
-        this._anchorEl.style.left = left + 'px';
-        this._anchorEl.style.top = top + 'px';
-    };
     AnchorView.prototype.show = function () {
         this._callout.container.appendChild(this._anchorEl);
+        this._anchorEl.style.visibility = 'hidden';
+        this._anchorEl.style.transform = 'scale(1)';
     };
     AnchorView.prototype.hide = function () {
         this._anchorEl.remove();
@@ -25,6 +27,17 @@ export var AnchorView = (function () {
         enumerable: true,
         configurable: true
     });
+    AnchorView.prototype.calculateLayout = function () {
+        this._layoutData.boundElementRect = Rect.fromBounds(relBounds(this._callout.container, this._callout.connector.anchor.element));
+        var anchorCenter = new Point(this._layoutData.boundElementRect.x2 + this._offset.x, this._layoutData.boundElementRect.y1 + this._offset.y);
+        this._layoutData.rect = Rect.fromBounds(relBounds(this._callout.container, this._anchorEl));
+        this._layoutData.rect.x1 = anchorCenter.x - this._layoutData.rect.width / 2;
+        this._layoutData.rect.y1 = anchorCenter.y - this._layoutData.rect.height / 2;
+    };
+    AnchorView.prototype.updateLayout = function () {
+        this._anchorEl.style.left = this._layoutData.rect.x1 + 'px';
+        this._anchorEl.style.top = this._layoutData.rect.y1 + 'px';
+    };
     Object.defineProperty(AnchorView.prototype, "center", {
         get: function () { },
         enumerable: true,
@@ -36,46 +49,67 @@ export var DefaultAnchorView = (function (_super) {
     __extends(DefaultAnchorView, _super);
     function DefaultAnchorView(callout) {
         _super.call(this, callout);
-        this._anchorEl = document.createElement('div');
-        this._anchorEl.setAttribute('class', 'ac-anchor default');
+        this._scale = 0;
+        addClass(this._anchorEl, 'default');
+        var innerCircle = document.createElement('div');
+        addClass(innerCircle, 'inner-circle');
+        var outerCircle = document.createElement('div');
+        addClass(outerCircle, 'outer-circle');
+        this._anchorEl.appendChild(outerCircle);
+        this._anchorEl.appendChild(innerCircle);
     }
     Object.defineProperty(DefaultAnchorView.prototype, "center", {
         get: function () {
-            var b = this.bounds;
-            return new Point(b.left + b.width / 2, b.top + b.height / 2);
+            return Rect.fromBounds(this.bounds).center;
         },
         enumerable: true,
         configurable: true
     });
-    DefaultAnchorView.prototype.fadeIn = function () {
+    DefaultAnchorView.prototype.setScale = function (scale) {
+        this._anchorEl.style.transform = 'scale(' + scale + ')';
+    };
+    DefaultAnchorView.prototype.animate = function (fadeIn) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var onTransitioned = function (evt) {
-                console.log('transitionend');
-                console.log(evt);
-                _this._anchorEl.removeEventListener('transitionend', onTransitioned);
-                resolve();
+            var startTime = Date.now();
+            var endTime = startTime + 200;
+            if (fadeIn)
+                _this._anchorEl.style.visibility = 'visible';
+            var loop = function () {
+                var now = Date.now();
+                if (now < endTime) {
+                    var ratio = (now - startTime) / (endTime - startTime);
+                    _this._scale = fadeIn ? ratio : 1 - ratio;
+                    requestAnimationFrame(loop);
+                }
+                else {
+                    _this._scale = fadeIn ? 1 : 0;
+                    resolve();
+                }
+                _this.setScale(_this._scale);
             };
-            _this._anchorEl.addEventListener('transitionend', onTransitioned);
-            _this.show();
-            setTimeout(function () {
-                addClass(_this._anchorEl, 'visible');
-            });
+            requestAnimationFrame(loop);
         });
     };
+    DefaultAnchorView.prototype.fadeIn = function () {
+        return this.animate(true);
+    };
     DefaultAnchorView.prototype.fadeOut = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            var onTransitioned = function (evt) {
-                console.log('transitionend');
-                console.log(evt);
-                _this._anchorEl.removeEventListener('transitionend', onTransitioned);
-                resolve();
-            };
-            _this._anchorEl.addEventListener('transitionend', onTransitioned);
-            removeClass(_this._anchorEl, 'visible');
-        });
+        return this.animate(false);
     };
     return DefaultAnchorView;
 }(AnchorView));
+export var AnchorLayoutData = (function () {
+    function AnchorLayoutData(rect, boundElementRect) {
+        if (rect === void 0) { rect = null; }
+        if (boundElementRect === void 0) { boundElementRect = null; }
+        this.rect = rect;
+        this.boundElementRect = boundElementRect;
+        if (this.rect == null)
+            this.rect = new Rect();
+        if (this.boundElementRect == null)
+            this.boundElementRect = new Rect();
+    }
+    return AnchorLayoutData;
+}());
 //# sourceMappingURL=/Users/matthias/Development/Projects/archer-callouts/src/anchor-view.js.map
