@@ -48,10 +48,10 @@ export abstract class BodyView {
         return this._sections;
     }
 
-    public show(): void {
+    public show(visible:boolean = false): void {
 
         this._callout.container.appendChild(this._bodyEl);
-        this._bodyEl.style.visibility = 'hidden';
+        this._bodyEl.style.visibility = !visible ? 'hidden' : 'visible';
 
         this._bodyEl.addEventListener('mousedown', this.onMouseDown);
     }
@@ -180,9 +180,6 @@ export abstract class BodyView {
 
         let anchorCenter = this._callout.connector.anchor.view.center;
 
-
-        console.log('Relpos');
-        console.log(this._relativePosition);
         let viewPos = anchorCenter.add(this._relativePosition);
 
         if (currentRect == null) currentRect = Rect.fromBounds(this.bounds);
@@ -315,7 +312,6 @@ export abstract class BodyView {
             .sub(this._dragStartPos);
 
         this._relativePosition = this._dragStartRelativePosition.add(dragDelta);
-        console.log(this._relativePosition);
 
         this.calculateLayout();
 

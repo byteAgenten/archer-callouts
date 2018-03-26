@@ -5,7 +5,7 @@ export abstract class AnchorView {
 
     protected _anchorEl: HTMLElement;
 
-    protected _layoutData: AnchorLayoutData = new AnchorLayoutData();
+    private _layoutData: AnchorLayoutData = new AnchorLayoutData();
 
     protected _offset:Point = new Point(0, 0);
 
@@ -14,14 +14,19 @@ export abstract class AnchorView {
         this._anchorEl.setAttribute('class', 'ac-anchor');
     }
 
-    public show(): void {
+    public show(visible:boolean = true): void {
         this._callout.container.appendChild(this._anchorEl);
-        this._anchorEl.style.visibility = 'hidden';
+        this._anchorEl.style.visibility = !visible ? 'hidden' : 'visible';
         this._anchorEl.style.transform = 'scale(1)';
     }
 
     public hide(): void {
         this._anchorEl.remove();
+    }
+
+
+    get layoutData(): AnchorLayoutData {
+        return this._layoutData;
     }
 
     get bounds(): ClientRect {

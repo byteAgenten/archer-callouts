@@ -73,8 +73,6 @@ export class DefaultConnectorView extends ConnectorView {
         if (a2b.x < 0) angle = (-1 * Math.PI / 2) - (Math.PI / 2 + angle);
         this._layoutData.angle = angle;
 
-        console.log('angle');
-        console.log(this._layoutData.angle);
     }
 
     public updateLayout() {

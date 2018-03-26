@@ -200,4 +200,10 @@ export class Rect {
             this._height
         );
     }
+
+    contains(rect: Rect, padding: number=0) {
+
+        return (rect.x1 - padding > this.x1 && this.x2 > rect.x2 + padding) &&
+            (rect.y1 - padding > this.y1 && this.y2 > rect.y2 + padding)
+    }
 }

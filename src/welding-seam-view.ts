@@ -73,7 +73,6 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         let b = this._layoutData.weldPoint.y - anchorCenter.y;
 
         layoutData.angle = Math.asin(b / Math.sqrt(a * a + b * b));
-        console.log(layoutData.angle);
 
         if (anchorCenter.x < bodyRect.x2-bodyRect.width/2) {
 
@@ -215,9 +214,6 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
             let xOrigin: string = null;
             let yOrigin: string = null;
-
-            console.log(Direction[this.layoutData.transformOrigin].toString());
-
 
             if (this._layoutData.weldSide == Direction.West) {
 
