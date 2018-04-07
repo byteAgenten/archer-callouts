@@ -1,7 +1,7 @@
 import {Callout} from "./callout";
 
 import {BodySection} from "./body-section";
-import {Direction, relBounds, relPos, Point, Rect, removeClass, addClass} from "./utils";
+import {Direction, relBounds, relPos, Point, Rect, removeClass, addClass, Dimension} from "./utils";
 export abstract class BodyView {
 
     protected _bodyEl: HTMLElement;
@@ -12,7 +12,7 @@ export abstract class BodyView {
 
     protected _sections: Array<BodySection> = [];
 
-    private _layoutData: BodyViewLayoutData = new BodyViewLayoutData();
+    protected _layoutData: BodyViewLayoutData = new BodyViewLayoutData();
 
     private _mouseDownDestroyFn: any;
     private _mouseUpDestroyFn: any;
@@ -48,18 +48,36 @@ export abstract class BodyView {
         return this._sections;
     }
 
-    public show(visible:boolean = false): void {
+    public addToStage(): void {
 
         this._callout.container.appendChild(this._bodyEl);
-        this._bodyEl.style.visibility = !visible ? 'hidden' : 'visible';
+        this.hide();
+        this._bodyEl.style.transform = 'scale(1)';
+
+        let rect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
+        this._layoutData.fullSize = rect.dimension;
 
         this._bodyEl.addEventListener('mousedown', this.onMouseDown);
+    }
+
+    public  removeFromStage(): void {
+
+        this._bodyEl.removeEventListener('mousedown', this.onMouseDown);
+        this._bodyEl.remove();
+    }
+
+    public show(): void {
+        this._bodyEl.style.visibility = 'visible';
+    }
+
+    public hide(): void {
+        this._bodyEl.style.visibility = 'hidden';
     }
 
     protected calcClosestPoint(rect: Rect): Point {
 
         let quadrant = this.calcQuadrant(rect);
-        let anchorCenter = this._callout.connector.anchor.view.center;
+        let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
 
         switch (quadrant) {
             case Direction.North: {
@@ -178,24 +196,24 @@ export abstract class BodyView {
 
     public calculateLayout(currentRect: Rect = null): void {
 
-        let anchorCenter = this._callout.connector.anchor.view.center;
+        let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
 
         let viewPos = anchorCenter.add(this._relativePosition);
+        //console.log(viewPos);
 
-        if (currentRect == null) currentRect = Rect.fromBounds(this.bounds);
+        currentRect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
         let targetRect = currentRect.moveTo(viewPos);
 
+        let containerRect = Rect.fromBounds(relBounds(this._callout.container, this._callout.container));
+        if (0 > targetRect.x1) targetRect.x1 = 0;
+        if (targetRect.x2 > containerRect.x2) targetRect.x1 = containerRect.x2 - targetRect.width;
+        if (0 > targetRect.y1) targetRect.y1 = 0;
+        if (targetRect.y2 > containerRect.y2) targetRect.y2 = containerRect.y2 - targetRect.height;
 
-        let containerBounds = this._callout.container.getBoundingClientRect();
-        if (!(0 <= targetRect.x1 && targetRect.x2 < containerBounds.width)) {
-            targetRect.x1 = currentRect.x1;
-        }
-        if (!(0 <= targetRect.y1 && targetRect.y2 < containerBounds.height)) {
-            targetRect.y1 = currentRect.y1;
-        }
+        //console.log(targetRect);
 
         this._layoutData.quadrant = this.calcQuadrant(targetRect);
-        this._layoutData.rect = this.protectShelter(anchorCenter, targetRect, this._layoutData.quadrant);
+        this._layoutData.rect = targetRect; // this.protectShelter(anchorCenter, targetRect, this._layoutData.quadrant);
         this._layoutData.closestPoint = this.calcClosestPoint(targetRect);
     }
 
@@ -214,12 +232,6 @@ export abstract class BodyView {
         return !(0 <= rect.x1 && rect.x2 < containerBounds.width && 0 <= rect.y1 && rect.y2 < containerBounds.height); // bounds.left < 0 || bounds.top < 0 || bounds.left + bounds.width > document.body.clientWidth || bounds.top + bounds.height > document.body.clientHeight; // bounds.right > document.body.clientWidth; // || bounds.top < 0 || bounds.y2 > document.body.clientHeight;
     }
 
-
-    public hide(): void {
-
-        this._bodyEl.removeEventListener('mousedown', this.onMouseDown);
-        this._bodyEl.remove();
-    }
 
     abstract calcQuadrant(rect: Rect): Direction;
 
@@ -286,6 +298,7 @@ export abstract class BodyView {
         return this._layoutData;
     }
 
+
     public abstract fadeIn(): Promise<void>;
 
     public abstract fadeOut(): Promise<void>;
@@ -323,6 +336,8 @@ export abstract class BodyView {
 
 export class DefaultBodyView extends BodyView {
 
+    private animationRunning: boolean = false;
+
     constructor(callout: Callout) {
 
         super(callout);
@@ -341,7 +356,7 @@ export class DefaultBodyView extends BodyView {
     public calcWeldingPoint(bodyRect: Rect = null): Point {
 
         let direction = this.calcQuadrant(bodyRect);
-        let anchorCenter = this._callout.connector.anchor.view.center;
+        let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
 
         let weldingPoint = new Point(anchorCenter.x, anchorCenter.y);
 
@@ -399,7 +414,7 @@ export class DefaultBodyView extends BodyView {
 
     public calcQuadrant(rect: Rect = null): Direction {
 
-        let anchorCenter = this._callout.connector.anchor.view.center;
+        let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
         if (rect == null) rect = Rect.fromBounds(this.bounds);
 
         let direction: Direction;
@@ -439,13 +454,16 @@ export class DefaultBodyView extends BodyView {
 
     public fadeOut(): Promise<void> {
 
+
         return this.animate(false).then(() => {
-            this.hide();
+            this.removeFromStage();
         });
 
     }
 
     animate(fadeIn: boolean): Promise<void> {
+
+        this.animationRunning = true;
 
         return new Promise<void>((resolve, reject) => {
 
@@ -485,9 +503,14 @@ export class DefaultBodyView extends BodyView {
                 this._sectionContainerEl.style.transform = 'translateY(' + (fadeIn ? (weldSide == Direction.South ? 100 : -100) : 0) + '%)';
             }
 
-            if (fadeIn) this._bodyEl.style.visibility = 'visible';
+            let firstRun = true;
 
             let loop = () => {
+
+                if (firstRun) {
+                    this.show();
+                    firstRun = false;
+                }
 
                 let now = Date.now();
                 let scale = 0;
@@ -507,9 +530,8 @@ export class DefaultBodyView extends BodyView {
                 }
 
                 let translateValue = (weldSide == Direction.East || weldSide == Direction.South ? 1 : -1) * (100 - (scale * 100));
-
-
                 this._sectionContainerEl.style.transform = ((weldSide == Direction.East || weldSide == Direction.West) ? 'translateX(' : 'translateY(') + translateValue + '%)';
+
 
             };
             requestAnimationFrame(loop);
@@ -520,10 +542,11 @@ export class DefaultBodyView extends BodyView {
 
 export class BodyViewLayoutData {
 
+    public fullSize: Dimension;
+
     constructor(public rect: Rect = null, public quadrant: Direction = null, public closestPoint: Point = null) {
 
         if (rect == null) this.rect = new Rect();
         if (closestPoint == null) this.closestPoint = new Point();
-
     }
 }

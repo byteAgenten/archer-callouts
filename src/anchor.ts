@@ -40,9 +40,7 @@ export class Anchor {
 
     public isTooClose(bounds:ClientRect):boolean {
 
-
-
-        let centerPoint = this.view.center;
+        let centerPoint = this.view.layoutData.rect.center;
 
         return false;
 

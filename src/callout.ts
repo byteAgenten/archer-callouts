@@ -12,7 +12,7 @@ export class Callout {
     private _connector: Connector;
     private _body: Body;
     private _visible: boolean = false;
-    private _offSiteIndicator:OffSiteIndicator;
+    private _offSiteIndicator: OffSiteIndicator;
 
     constructor(container: HTMLElement) {
         console.log('New callout');
@@ -34,59 +34,88 @@ export class Callout {
         this._connector.anchor.element = element;
     }
 
-    private isInViewPort:boolean = null;
+    get offSiteHtml(): string {
+        return this._offSiteIndicator.html;
+    }
 
-    public updatePosition(bodyDrag: boolean = false): void {
+    set offSiteHtml(html: string) {
+        this._offSiteIndicator.html = html;
+    }
+
+    private isInViewPort: boolean = null;
+
+    private calculateLayout(bodyDrag:boolean):void {
 
         this._connector.anchor.view.calculateLayout();
+
         if (!bodyDrag) this._body.view.calculateLayout();
         this._connector.weldingSeamView.calculateLayout();
         this._connector.view.calculateLayout();
+    }
+
+    public updatePosition(bodyDrag: boolean = false): void {
+
+        this.calculateLayout(bodyDrag);
 
         let isAnchorInViewPort = this.isAnchorInViewPort();
-        if( isAnchorInViewPort != this.isInViewPort) {
-            if( isAnchorInViewPort ) {
-                this._connector.anchor.view.show(true);
+        if (isAnchorInViewPort != this.isInViewPort) {
+            if (isAnchorInViewPort) {
+
+                this._connector.anchor.view.show();
                 this._connector.view.show();
                 this._connector.weldingSeamView.show();
-                this.body.view.show(true);
+                this.body.view.show();
+
                 this._offSiteIndicator.hide();
+
             } else {
-                this._connector.anchor.view.hide();
+
                 this._connector.view.hide();
+                this._connector.anchor.view.hide();
                 this._connector.weldingSeamView.hide();
                 this.body.view.hide();
+
+                this._offSiteIndicator.addToStage();
+                this._offSiteIndicator.calculateLayout();
                 this._offSiteIndicator.show();
+
             }
             this.isInViewPort = isAnchorInViewPort;
         }
 
-        if( isAnchorInViewPort) {
+
+        if (isAnchorInViewPort) {
 
             this._connector.anchor.view.updateLayout();
             this._connector.view.updateLayout();
             this._connector.weldingSeamView.updateLayout();
-            if( !bodyDrag) this.body.view.updateLayout();
+            if (!bodyDrag) this.body.view.updateLayout();
 
         } else {
 
-            this._offSiteIndicator.updatePosition();
+            this._offSiteIndicator.calculateLayout();
+            this._offSiteIndicator.updateLayout();
         }
     }
 
-    private isAnchorInViewPort():boolean {
+    private isAnchorInViewPort(): boolean {
 
-       let anchorRect =  this._connector.anchor.view.layoutData.rect;
-       let containerRect = Rect.fromBounds(relBounds(this._container, this._container));
-       return containerRect.contains(anchorRect);
+        let anchorRect = this._connector.anchor.view.layoutData.rect;
+        let containerRect = Rect.fromBounds(relBounds(this._container, this._container));
+        //console.log(containerRect);
+        //console.log(anchorRect);
+        //console.log('_______________')
+        return containerRect.contains(anchorRect);
+
     }
 
     public show(): void {
 
 
-        this._body.view.show();
-        this._connector.anchor.view.show();
-
+        this._body.view.addToStage();
+        this._connector.anchor.view.addToStage();
+        this._connector.view.addToStage();
+        this._connector.weldingSeamView.addToStage();
 
         this.updatePosition();
         this.connector.anchor.view.fadeIn().then(() => {
@@ -114,6 +143,9 @@ export class Callout {
             return this.connector.view.fadeOut();
         }).then(() => {
             return this.connector.anchor.view.fadeOut();
+        }).then(() => {
+
+            this.connector.anchor.view.removeFromStage();
         });
 
 

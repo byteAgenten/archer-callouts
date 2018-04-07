@@ -13,14 +13,24 @@ export abstract class WeldingSeamView {
         this._el.setAttribute('class', 'ac-welding-seam');
     }
 
-    public show(): void {
+    public addToStage(): void {
 
         this._callout.container.appendChild(this._el);
+        this.hide();
+        this._el.style.transform = 'scale(1)';
     }
 
-    public hide(): void {
+    public removeFromStage(): void {
 
         this._el.remove();
+    }
+
+    public show():void {
+        this._el.style.visibility = 'visible';
+    }
+
+    public hide():void {
+        this._el.style.visibility = 'hidden';
     }
 
     get layoutData(): WeldLayoutData {
@@ -62,9 +72,15 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
     public calculateLayout(): void {
 
-        //let anchorRect = Rect.fromBounds(this._callout.connector.anchor.view.bounds);
-        let anchorCenter = this._callout.connector.anchor.view.center;
+        let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
         let bodyRect = this._callout.body.view.layoutData.rect;
+
+        //bodyFullSize is needed in case of fadeOut sequence! bodyRect.width will be 0 at the end of the fadeOut sequence.
+        //This would lead to wrong calculation results here. Therefore we have to know what was the dimension
+        //of the document before fadeOut sequence started.
+        let bodyFullSize = this._callout.body.view.layoutData.fullSize;
+
+
         this._layoutData.weldPoint = this._callout.body.view.layoutData.closestPoint;
 
         let layoutData = new WeldLayoutData();
@@ -74,22 +90,22 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
         layoutData.angle = Math.asin(b / Math.sqrt(a * a + b * b));
 
-        if (anchorCenter.x < bodyRect.x2-bodyRect.width/2) {
+        if (anchorCenter.x < bodyRect.x2 - bodyRect.width / 2) {
 
             if (layoutData.angle < -1 * Math.PI / 4) {
 
                 layoutData.transformOrigin = Direction.SouthWest;
                 layoutData.weldSide = Direction.South;
-                if( bodyRect.x1 > anchorCenter.x) {
+                if (bodyRect.x1 > anchorCenter.x) {
                     layoutData.weldPoint = new Point(bodyRect.x1, bodyRect.y2);
-                }else{
+                } else {
                     layoutData.weldPoint = new Point(anchorCenter.x, bodyRect.y2);
                 }
 
                 layoutData.rect = new Rect(
                     bodyRect.x1,
                     bodyRect.y2 - this._callout.connector.view.lineWidth,
-                    bodyRect.width,
+                    bodyFullSize.width,
                     this._callout.connector.view.lineWidth
                 );
 
@@ -97,25 +113,25 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
                 layoutData.transformOrigin = Direction.NorthWest;
                 layoutData.weldSide = Direction.North;
-                if( bodyRect.x1 > anchorCenter.x) {
+                if (bodyRect.x1 > anchorCenter.x) {
                     layoutData.weldPoint = new Point(bodyRect.x1, bodyRect.y1);
-                }else{
+                } else {
                     layoutData.weldPoint = new Point(anchorCenter.x, bodyRect.y1);
                 }
 
                 layoutData.rect = new Rect(
                     bodyRect.x1,
                     bodyRect.y1,
-                    bodyRect.width,
+                    bodyFullSize.width,
                     this._callout.connector.view.lineWidth
                 );
 
             } else {
 
-                if(anchorCenter.y > bodyRect.y2) {
+                if (anchorCenter.y > bodyRect.y2) {
                     layoutData.transformOrigin = Direction.SouthWest;
                     layoutData.weldPoint = new Point(bodyRect.x1, bodyRect.y2);
-                } else if(anchorCenter.y < bodyRect.y1) {
+                } else if (anchorCenter.y < bodyRect.y1) {
                     layoutData.transformOrigin = Direction.NorthWest;
                     layoutData.weldPoint = new Point(bodyRect.x1, bodyRect.y1);
                 } else {
@@ -127,7 +143,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                     bodyRect.x1,
                     bodyRect.y1,
                     this._callout.connector.view.lineWidth,
-                    bodyRect.height
+                    bodyFullSize.height
                 );
             }
 
@@ -138,15 +154,15 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 layoutData.transformOrigin = Direction.SouthEast;
                 layoutData.weldSide = Direction.South;
 
-                if( bodyRect.x2 < anchorCenter.x) {
+                if (bodyRect.x2 < anchorCenter.x) {
                     layoutData.weldPoint = new Point(bodyRect.x2, bodyRect.y2);
-                }else{
+                } else {
                     layoutData.weldPoint = new Point(anchorCenter.x, bodyRect.y2);
                 }
                 layoutData.rect = new Rect(
                     bodyRect.x1,
                     bodyRect.y2 - this._callout.connector.view.lineWidth,
-                    bodyRect.width,
+                    bodyFullSize.width,
                     this._callout.connector.view.lineWidth
                 );
 
@@ -154,27 +170,27 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
                 layoutData.transformOrigin = Direction.NorthEast;
                 layoutData.weldSide = Direction.North;
-                if( bodyRect.x2 < anchorCenter.x) {
+                if (bodyRect.x2 < anchorCenter.x) {
                     layoutData.weldPoint = new Point(bodyRect.x2, bodyRect.y1);
-                }else{
+                } else {
                     layoutData.weldPoint = new Point(anchorCenter.x, bodyRect.y1);
                 }
                 layoutData.rect = new Rect(
                     bodyRect.x1,
                     bodyRect.y1,
-                    bodyRect.width,
+                    bodyFullSize.width,
                     this._callout.connector.view.lineWidth
                 );
 
             } else {
 
-                if( anchorCenter.y > bodyRect.y2) {
+                if (anchorCenter.y > bodyRect.y2) {
                     layoutData.transformOrigin = Direction.SouthEast;
                     layoutData.weldPoint = new Point(bodyRect.x2, bodyRect.y2);
-                } else if(anchorCenter.y < bodyRect.y1) {
+                } else if (anchorCenter.y < bodyRect.y1) {
                     layoutData.transformOrigin = Direction.NorthEast;
                     layoutData.weldPoint = new Point(bodyRect.x2, bodyRect.y1);
-                }else  {
+                } else {
                     layoutData.transformOrigin = Direction.East;
                     layoutData.weldPoint = new Point(bodyRect.x2, anchorCenter.y);
                 }
@@ -183,7 +199,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                     bodyRect.x2 - this._callout.connector.view.lineWidth,
                     bodyRect.y1,
                     this._callout.connector.view.lineWidth,
-                    bodyRect.height
+                    bodyFullSize.height
                 );
             }
         }
@@ -210,7 +226,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         return new Promise<void>((resolve, reject) => {
 
             let startTime = Date.now();
-            let endTime = startTime + 200;
+            let endTime = startTime + 400;
 
             let xOrigin: string = null;
             let yOrigin: string = null;
@@ -233,20 +249,31 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
             }
 
             if (xOrigin != null) {
-                this._el.style.transformOrigin = xOrigin + ' top';
+                this._el.style.transformOrigin = xOrigin + " top";
             } else {
-                this._el.style.transformOrigin = 'left ' + yOrigin;
+                let v = "left " + yOrigin;
+                //console.log(v);
+                this._el.style.transformOrigin = v;
             }
 
-            if (this._layoutData.weldSide == Direction.East || this._layoutData.weldSide == Direction.West) {
-                this._el.style.transform = fadeIn ? 'scaleY(0)' : 'scaleY(1)';
-            } else {
-                this._el.style.transform = fadeIn ? 'scaleX(0)' : 'scaleX(1)';
-            }
+
+            console.log(Direction[this._layoutData.weldSide]);
+
+            let weldSide = this._layoutData.weldSide;
+            //console.log(Direction[weldSide]);
+
+            let firstRun = true;
 
             let loop = () => {
 
+                //console.log(Direction[weldSide]);
+
                 let now = Date.now();
+
+                if (firstRun) {
+                    this.show();
+                    firstRun = false;
+                }
 
                 if (now < endTime) {
 
@@ -261,8 +288,10 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                     this._el.style.transform = null;
                     resolve();
                 }
-                this._el.style.transform = ((this._layoutData.weldSide == Direction.East || this._layoutData.weldSide == Direction.West) ? 'scaleY(' : 'scaleX(') + this._scale + ')';
 
+                this._el.style.transform = ((weldSide == Direction.East || weldSide == Direction.West) ? 'scaleY(' : 'scaleX(') + this._scale + ')';
+
+                console.log(this._el.style.transform);
             };
             requestAnimationFrame(loop);
         });
@@ -270,13 +299,13 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
     public fadeIn(): Promise<void> {
 
-        this.show();
+
         return this.animate(true);
     }
 
     public fadeOut(): Promise<void> {
         return this.animate(false).then(() => {
-            this.hide();
+            this.removeFromStage();
         });
     }
 

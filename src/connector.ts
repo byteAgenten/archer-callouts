@@ -45,17 +45,5 @@ export class Connector {
         //this._weldingSeamView.update();
     }
 
-    public show():void {
-        this.anchor.show();
-        this._view.show();
-        this._weldingSeamView.show();
-        this.updatePosition();
 
-    }
-
-    public hide():void {
-        this.anchor.hide();
-        this._view.hide();
-        this._weldingSeamView.hide();
-    }
 }

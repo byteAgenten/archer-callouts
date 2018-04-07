@@ -9,7 +9,7 @@
             position: absolute;
             top: 100px;
             right: 150px;
-            bottom: 20px;
+            bottom: 120px;
             left: 80px;
 
             background-color: azure;
@@ -135,24 +135,84 @@
 
     }
 
-    var outside = 300;
-    var minXPos = -1 * outside;
-    var xPos = minXPos;
-    var maxXPos = 0;
+
+    var oldXPos = -1;
+    var oldYPos = -1;
+    var xPos = 10;
+    var yPos = 10;
+    var speed = 2;
+
     var loop = function() {
 
-        xPos += 2;
-        if( xPos > maxXPos) xPos = minXPos;
+        switch(currentKey) {
+            case UP: {
+                yPos += -1 * speed;
+                break;
+            }
+            case RIGHT: {
+                xPos += speed;
+                break;
+            }
+            case DOWN: {
+                yPos += speed;
+                break;
+            }
+            case LEFT: {
+                xPos += -1 * speed;
+                break;
+            }
+        }
 
         targetEl.style.left = xPos + 'px';
-        targetEl.style.top = (xPos/2) + 'px';
-        callout.updatePosition();
+        targetEl.style.top = yPos + 'px';
+
+        if( oldXPos != xPos || oldYPos != yPos) {
+
+            callout.updatePosition();
+            oldXPos = xPos;
+            oldYPos = yPos;
+        }
+
 
         requestAnimationFrame(loop);
     };
 
+    var UP = 38;
+    var RIGHT = 39;
+    var DOWN = 40;
+    var LEFT = 37;
+
+    var currentKey = -1;
 
     window.onload = function (e) {
+
+        document.addEventListener('keydown', function(evt) {
+
+            currentKey = -1;
+
+            switch(evt.keyCode) {
+                case 38: { //Up
+                    currentKey = UP;
+                    break;
+                }
+                case 39: { //Right
+                    currentKey = RIGHT;
+                    break;
+                }
+                case 40: { //Down
+                    currentKey = DOWN;
+                    break;
+                }
+                case 37: { //Left
+                    currentKey = LEFT;
+                    break;
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(evt) {
+
+        });
 
         var calloutManager = new ArcherCallouts.CalloutManager();
 
@@ -161,13 +221,13 @@
         callout = calloutManager.create(container);
         callout.bind(targetEl);
 
-        maxXPos = container.getBoundingClientRect().width + outside;
-
         var headerSection = callout.sections[0];
         headerSection.content = '<div class="callout-header">hello</div>';
 
         var bodySection = callout.sections[1];
         bodySection.content = '<div class="callout-body">body</div>';
+
+        callout.offSiteHtml = '<div>There is a <i>callout!</i></div>';
 
         callout.show();
         callout.updatePosition();

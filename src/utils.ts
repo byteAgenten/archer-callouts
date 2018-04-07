@@ -1,27 +1,42 @@
 export function addClass(element: HTMLElement, clazz: string) {
 
     let classContent = element.getAttribute('class');
-    if( classContent == null) {
+    console.log('ac: ' + classContent);
+    if (classContent == null) {
         element.setAttribute('class', '');
         classContent = '';
     }
     if (classContent.length > 0) classContent += ' ';
+    classContent = removeTokenFromString(classContent, clazz);
     classContent += clazz;
 
     element.setAttribute('class', classContent);
 }
 
+export function removeTokenFromString(text: string, token: string): string {
+
+    if (!text || text.length == 0) return text;
+
+    let tokenIndex = text.search('\\b' + token + '\\b');
+
+    console.log('index: ' + tokenIndex);
+    if (tokenIndex >= 0) {
+
+        text = text.substring(0, tokenIndex) + ' ' + text.substring(tokenIndex + token.length, text.length);
+        text = text.replace(/( ){2,}/g, ' '); //Remove potentially double blanks
+    }
+    return text;
+}
+
 export function removeClass(element: HTMLElement, clazz: string) {
 
+    console.log('removeClass ' + clazz);
     let classContent = element.getAttribute('class');
-    let classIndex = classContent.search('\\b' + clazz + '\\b');
-    if (classIndex >= 0) {
 
-        classContent = classContent.substring(0, classIndex) + ' ' + classContent.substring(classIndex + clazz.length, classContent.length);
-        classContent = classContent.replace(/( ){2,}/g, ' '); //Remove potentially double blanks
-        element.setAttribute('class', classContent);
-    }
+    classContent = removeTokenFromString(classContent, clazz);
+    element.setAttribute('class', classContent);
 }
+
 
 export function setClasses(element: HTMLElement, classes: Array<string>) {
 
@@ -52,8 +67,8 @@ export function relBounds(container: HTMLElement, el: HTMLElement): ClientRect {
     return {
         left: elBounds.left - containerBounds.left,
         top: elBounds.top - containerBounds.top,
-        right: containerBounds.right - elBounds.right,
-        bottom: containerBounds.bottom - elBounds.bottom,
+        right: elBounds.right + containerBounds.right,
+        bottom: elBounds.bottom + containerBounds.bottom,
         width: elBounds.width,
         height: elBounds.height
     } as ClientRect;
@@ -98,6 +113,17 @@ export class Point {
             this.x * factor,
             this.y * factor
         );
+    }
+}
+
+export class Dimension {
+
+    constructor(public width: number = 0, public height: number = 0) {
+
+    }
+
+    clone() {
+        return new Dimension(this.width, this.height);
     }
 }
 
@@ -181,6 +207,11 @@ export class Rect {
         );
     }
 
+    get dimension(): Dimension {
+
+        return new Dimension(this._width, this._height);
+    }
+
     static fromBounds(bounds: ClientRect) {
 
         return new Rect(
@@ -201,9 +232,9 @@ export class Rect {
         );
     }
 
-    contains(rect: Rect, padding: number=0) {
+    contains(rect: Rect, padding: number = 0) {
 
-        return (rect.x1 - padding > this.x1 && this.x2 > rect.x2 + padding) &&
-            (rect.y1 - padding > this.y1 && this.y2 > rect.y2 + padding)
+        return (rect.x1 - padding >= this.x1 && this.x2 > rect.x2 + padding) &&
+            (rect.y1 - padding >= this.y1 && this.y2 > rect.y2 + padding)
     }
 }

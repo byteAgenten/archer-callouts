@@ -7,17 +7,26 @@ export abstract class ConnectorView {
 
     protected _layoutData: ConnectorLayoutData = new ConnectorLayoutData();
 
-
     constructor(protected _callout: Callout) {
 
     }
 
-    public show(): void {
+    public addToStage(): void {
         this._callout.container.appendChild(this._connectorEl);
+        this.hide();
+        this._connectorEl.style.transform = 'scale(1)';
+    }
+
+    public removeFromStage(): void {
+        this._connectorEl.remove();
+    }
+
+    public show(): void {
+        this._connectorEl.style.visibility = 'visible';
     }
 
     public hide(): void {
-        this._connectorEl.remove();
+        this._connectorEl.style.visibility = 'hidden';
     }
 
     public abstract fadeIn(): Promise<void>;
@@ -52,10 +61,14 @@ export class DefaultConnectorView extends ConnectorView {
 
     public calculateLayout() {
 
-        this._layoutData.startPoint = this._callout.connector.anchor.view.center;
+        this._layoutData.startPoint = this._callout.connector.anchor.view.layoutData.rect.center;
+
         this._layoutData.endPoint = this._callout.connector.weldingSeamView.layoutData.weldPoint;
 
-
+        console.log('startPoint');
+        console.log(this._layoutData.startPoint);
+        console.log('endPoint');
+        console.log(this._layoutData.endPoint);
         //console.log('start');
         //console.log(this._layoutData.startPoint);
         //console.log('end');
@@ -63,7 +76,6 @@ export class DefaultConnectorView extends ConnectorView {
 
 
         let a2b = this._layoutData.endPoint.sub(this._layoutData.startPoint);
-
 
 
         this._layoutData.length = Math.sqrt(a2b.x * a2b.x + a2b.y * a2b.y);
@@ -77,7 +89,7 @@ export class DefaultConnectorView extends ConnectorView {
 
     public updateLayout() {
 
-        this._lineEl.style.width = (this._layoutData.length  + this.lineWidth) + 'px';
+        this._lineEl.style.width = (this._layoutData.length + this.lineWidth) + 'px';
 
         this._connectorEl.style.left = this._layoutData.startPoint.x + 'px';
         this._connectorEl.style.top = this._layoutData.startPoint.y + 'px';
@@ -93,14 +105,22 @@ export class DefaultConnectorView extends ConnectorView {
 
     animate(fadeIn: boolean): Promise<void> {
 
+        console.log('connector fadeIn()');
+
         return new Promise<void>((resolve, reject) => {
 
             let startTime = Date.now();
-            let endTime = startTime + 200;
+            let endTime = startTime + 400;
 
-            if (fadeIn) this.setScale(0);
+
+            let firstRun = true;
 
             let loop = () => {
+
+                if (firstRun) {
+                    this.show();
+                    firstRun = false;
+                }
 
                 let now = Date.now();
 
@@ -116,6 +136,7 @@ export class DefaultConnectorView extends ConnectorView {
                 }
 
                 this.setScale(this._scaleX);
+
             };
             requestAnimationFrame(loop);
         });
@@ -123,14 +144,13 @@ export class DefaultConnectorView extends ConnectorView {
 
     public fadeIn(): Promise<void> {
 
-        this.show();
         return this.animate(true);
     }
 
     public fadeOut(): Promise<void> {
 
         return this.animate(false).then(() => {
-            this.hide();
+            this.removeFromStage();
         });
     }
 
@@ -140,9 +160,19 @@ export class DefaultConnectorView extends ConnectorView {
     }
 
 
+    public addToStage(): void {
+        super.addToStage();
+        if (this._lineWidth < 0) this._lineWidth = this._lineEl.getBoundingClientRect().height as number;
+    }
+
     public show(): void {
         super.show();
-        if (this._lineWidth < 0) this._lineWidth = this._lineEl.getBoundingClientRect().height as number;
+        this._lineEl.style.visibility = 'visible';
+    }
+
+    public hide(): void {
+        super.hide();
+        this._lineEl.style.visibility = 'hidden';
     }
 }
 

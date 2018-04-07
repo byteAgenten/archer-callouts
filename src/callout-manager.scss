@@ -1,17 +1,14 @@
 @import "./base";
 
-
-
 .ac-anchor {
   position: absolute;
   box-sizing: border-box;
-
 
   &.default {
 
     width: 16px;
     height: 16px;
-    background-color: transparent;
+    background-color: lightgoldenrodyellow;
 
     .inner-circle {
       width: 40%;
@@ -39,9 +36,7 @@
       position: absolute;
       box-sizing: border-box;
 
-
     }
-
 
   }
 }
@@ -59,8 +54,6 @@ $line-ending-radius: $line-width/2;
 
   &.default {
 
-
-
     .line {
 
       transform-origin: $line-width/2 $line-width/2;
@@ -72,8 +65,6 @@ $line-ending-radius: $line-width/2;
       top: -1 * $line-width/2;
       left: -1 * $line-width/2;
       position: absolute;
-
-
 
       //transition: scaleX .2s ease-in-out;
 
@@ -103,8 +94,6 @@ $line-ending-radius: $line-width/2;
 
 }
 
-
-
 .ac-welding-seam {
   position: absolute;
   box-sizing: border-box;
@@ -129,9 +118,59 @@ $line-ending-radius: $line-width/2;
 }
 
 .off-site-indicator {
-  background-color: black;
-  color: white;
-  border-radius: 3px;
+
   position: absolute;
+  display: flex;
+  align-items: center;
+
+  &.hidden {
+    opacity: 0;
+  }
+
+  opacity: 1;
+  transition: opacity .6s ease;
+
+  &.north {
+    flex-direction: column;
+
+  }
+  &.east {
+    flex-direction: row-reverse;
+
+    .nose {
+      transform: rotate(90deg);
+    }
+  }
+  &.south {
+    flex-direction: column-reverse;
+    .nose {
+      transform: rotate(180deg);
+    }
+  }
+  &.west {
+    flex-direction: row;
+
+    .nose {
+      transform: rotate(-90deg);
+
+    }
+  }
+
+  .body {
+    display: flex;
+    background-color: black;
+    color: white;
+    border-radius: 3px;
+    padding: 3px 9px;
+  }
+
+  .nose {
+
+    min-width: 10px;
+    min-height: 10px;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIxLjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkViZW5lXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDAgODYuNiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTAwIDg2LjY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cG9seWxpbmUgcG9pbnRzPSIxMDAsODYuNiAwLDg2LjYgNTAsMCAJIi8+CjwvZz4KPC9zdmc+Cg==');
+    background-position-y: 2px;
+  }
 }
 
