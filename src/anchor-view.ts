@@ -7,11 +7,12 @@ export abstract class AnchorView {
 
     private _layoutData: AnchorLayoutData = new AnchorLayoutData();
 
-    protected _offset: Point = new Point(0, 0);
+    protected _offset: Point = new Point(-0.5, 0.5);
 
     constructor(protected _callout: Callout) {
         this._anchorEl = document.createElement('div');
         this._anchorEl.setAttribute('class', 'ac-anchor');
+        if( this._callout.config.customClass != null) addClass(this._anchorEl, this._callout.config.customClass);
     }
 
     public addToStage(): void {
@@ -24,11 +25,11 @@ export abstract class AnchorView {
         this._anchorEl.remove();
     }
 
-    public show():void {
+    public show(): void {
         this._anchorEl.style.visibility = 'visible';
     }
 
-    public hide():void {
+    public hide(): void {
         this._anchorEl.style.visibility = 'hidden';
     }
 
@@ -42,11 +43,26 @@ export abstract class AnchorView {
 
     public calculateLayout(): void {
 
-        this._layoutData.boundElementRect = Rect.fromBounds(relBounds(this._callout.container, this._callout.connector.anchor.element));
+        let el: any = this._callout.connector.anchor.element;
+
+        if (el.getBBox) { //Archer svg element
+
+            //console.log('archer element')
+            let bbox: any = el.getBBox();
+
+            this._layoutData.boundElementRect = new Rect(bbox.x, bbox.y, bbox.width, bbox.height);
+
+            //console.log('boundElementRect');
+            //console.log(this._layoutData.boundElementRect);
+
+        } else {
+            this._layoutData.boundElementRect = Rect.fromBounds(relBounds(this._callout.container, this._callout.connector.anchor.element));
+
+        }
 
         let anchorCenter = new Point(
-            this._layoutData.boundElementRect.x2 + this._offset.x,
-            this._layoutData.boundElementRect.y1 + this._offset.y
+            this._layoutData.boundElementRect.x2 + this._layoutData.boundElementRect.width * this._offset.x,
+            this._layoutData.boundElementRect.y1 + this._layoutData.boundElementRect.height * this._offset.y
         );
 
 
@@ -56,9 +72,14 @@ export abstract class AnchorView {
         this._layoutData.rect = Rect.fromBounds(relBounds(this._callout.container, this._anchorEl));
         //console.log('rect: ' + anchorCenter.x + '/' + anchorCenter.y + '   ' + this._layoutData.rect.width + '/' + this._layoutData.rect.height);
 
+        //console.log('this._layoutData.rect');
+        //console.log(this._layoutData.rect);
+
 
         this._layoutData.rect.x1 = anchorCenter.x - this._layoutData.rect.width / 2;
         this._layoutData.rect.y1 = anchorCenter.y - this._layoutData.rect.height / 2;
+
+        //console.log(this._layoutData.rect);
 
         //console.log(this._layoutData.rect);
 
@@ -144,7 +165,7 @@ export class DefaultAnchorView extends AnchorView {
 
     public fadeOut(): Promise<void> {
 
-        return this.animate(false).then(()=> {
+        return this.animate(false).then(() => {
             this.removeFromStage();
         });
     }

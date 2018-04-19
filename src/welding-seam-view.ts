@@ -11,6 +11,7 @@ export abstract class WeldingSeamView {
 
         this._el = document.createElement('div');
         this._el.setAttribute('class', 'ac-welding-seam');
+        if( this._callout.config.customClass != null) addClass(this._el, this._callout.config.customClass);
     }
 
     public addToStage(): void {
@@ -79,6 +80,9 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         //This would lead to wrong calculation results here. Therefore we have to know what was the dimension
         //of the document before fadeOut sequence started.
         let bodyFullSize = this._callout.body.view.layoutData.fullSize;
+        //console.log('^^^^^^^^^');
+        //console.log(bodyFullSize);
+
 
 
         this._layoutData.weldPoint = this._callout.body.view.layoutData.closestPoint;
@@ -225,6 +229,8 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
         return new Promise<void>((resolve, reject) => {
 
+            console.log(this._layoutData.rect);
+
             let startTime = Date.now();
             let endTime = startTime + 400;
 
@@ -248,6 +254,8 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 xOrigin = this.layoutData.transformOrigin == Direction.SouthEast ? 'right' : (this.layoutData.transformOrigin == Direction.SouthWest ? 'left' : 'center');
             }
 
+
+
             if (xOrigin != null) {
                 this._el.style.transformOrigin = xOrigin + " top";
             } else {
@@ -257,7 +265,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
             }
 
 
-            console.log(Direction[this._layoutData.weldSide]);
+            //console.log(Direction[this._layoutData.weldSide]);
 
             let weldSide = this._layoutData.weldSide;
             //console.log(Direction[weldSide]);
@@ -291,7 +299,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
                 this._el.style.transform = ((weldSide == Direction.East || weldSide == Direction.West) ? 'scaleY(' : 'scaleX(') + this._scale + ')';
 
-                console.log(this._el.style.transform);
+                //console.log(this._el.style.transform);
             };
             requestAnimationFrame(loop);
         });

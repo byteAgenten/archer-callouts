@@ -1,5 +1,6 @@
 import "./callout-manager.scss";
 import {Callout} from "./callout";
+import {CalloutConfig} from "./callout-config";
 
 
 export class CalloutManager {
@@ -9,7 +10,7 @@ export class CalloutManager {
     constructor() {
     }
 
-    public create(container:HTMLElement= null): Callout {
-        return new Callout(container);
+    public create(container:HTMLElement= null, config:CalloutConfig = null): Callout {
+        return new Callout(container, config);
     }
 }

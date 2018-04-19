@@ -1,7 +1,7 @@
 export function addClass(element: HTMLElement, clazz: string) {
 
     let classContent = element.getAttribute('class');
-    console.log('ac: ' + classContent);
+    //console.log('ac: ' + classContent);
     if (classContent == null) {
         element.setAttribute('class', '');
         classContent = '';
@@ -19,7 +19,7 @@ export function removeTokenFromString(text: string, token: string): string {
 
     let tokenIndex = text.search('\\b' + token + '\\b');
 
-    console.log('index: ' + tokenIndex);
+    //console.log('index: ' + tokenIndex);
     if (tokenIndex >= 0) {
 
         text = text.substring(0, tokenIndex) + ' ' + text.substring(tokenIndex + token.length, text.length);
@@ -30,7 +30,7 @@ export function removeTokenFromString(text: string, token: string): string {
 
 export function removeClass(element: HTMLElement, clazz: string) {
 
-    console.log('removeClass ' + clazz);
+    //console.log('removeClass ' + clazz);
     let classContent = element.getAttribute('class');
 
     classContent = removeTokenFromString(classContent, clazz);

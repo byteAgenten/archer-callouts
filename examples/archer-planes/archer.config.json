@@ -1,0 +1,280 @@
+{
+  "variables": [
+    {
+      "name": "plane-1-x",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 100
+    },
+    {
+      "name": "plane-1-y",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 50
+    },
+    {
+      "name": "plane-1-angle",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 360
+    },
+    {
+      "name": "plane-2-x",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 100
+    },
+    {
+      "name": "plane-2-y",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 50
+    },
+    {
+      "name": "plane-2-angle",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 360
+    },
+    {
+      "name": "plane-3-x",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 100
+    },
+    {
+      "name": "plane-3-y",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 50
+    },
+    {
+      "name": "plane-3-angle",
+      "type": "number",
+      "keyFrames": {},
+      "minimum": 0,
+      "maximum": 360
+    }
+  ],
+  "transformations": [
+    {
+      "name": "translate_plane-1",
+      "type": "translate",
+      "element": "plane-1",
+      "variable": "plane-1-x",
+      "frames": {
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 2000,
+            "y": 0
+          },
+          "transition": "step"
+        },
+        "$min": {
+          "name": "$min",
+          "value": {
+            "x": 0,
+            "y": 0
+          },
+          "transition": "linear"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "translate_plane-1",
+      "type": "translate",
+      "element": "plane-1",
+      "variable": "plane-1-y",
+      "frames": {
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        },
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 0,
+            "y": 1000
+          },
+          "transition": "step"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "rotate_plane-1",
+      "type": "rotate",
+      "element": "plane-1",
+      "variable": "plane-1-angle",
+      "frames": {
+        "$max": {
+          "name": "$max",
+          "value": 360,
+          "transition": "step"
+        },
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        }
+      },
+      "transition": null,
+      "priority": 120,
+      "center": "center"
+    },
+    {
+      "name": "translate_plane-2",
+      "type": "translate",
+      "element": "plane-2",
+      "variable": "plane-2-x",
+      "frames": {
+        "$min": {
+          "name": "$min",
+          "value": {
+            "x": 0,
+            "y": 0
+          },
+          "transition": "linear"
+        },
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 2000,
+            "y": 0
+          },
+          "transition": "step"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "translate_plane-2",
+      "type": "translate",
+      "element": "plane-2",
+      "variable": "plane-2-y",
+      "frames": {
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        },
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 0,
+            "y": 1000
+          },
+          "transition": "step"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "rotate_plane-2",
+      "type": "rotate",
+      "element": "plane-2",
+      "variable": "plane-2-angle",
+      "frames": {
+        "$max": {
+          "name": "$max",
+          "value": 360,
+          "transition": "step"
+        },
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        }
+      },
+      "transition": null,
+      "priority": 120,
+      "center": "center"
+    },
+    {
+      "name": "translate_plane-3",
+      "type": "translate",
+      "element": "plane-3",
+      "variable": "plane-3-x",
+      "frames": {
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 2000,
+            "y": 0
+          },
+          "transition": "step"
+        },
+        "$min": {
+          "name": "$min",
+          "value": {
+            "x": 0,
+            "y": 0
+          },
+          "transition": "linear"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "translate_plane-3",
+      "type": "translate",
+      "element": "plane-3",
+      "variable": "plane-3-y",
+      "frames": {
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        },
+        "$max": {
+          "name": "$max",
+          "value": {
+            "x": 0,
+            "y": 1000
+          },
+          "transition": "step"
+        }
+      },
+      "transition": null,
+      "priority": 130
+    },
+    {
+      "name": "rotate_plane-3",
+      "type": "rotate",
+      "element": "plane-3",
+      "variable": "plane-3-angle",
+      "frames": {
+        "$min": {
+          "name": "$min",
+          "value": null,
+          "transition": "linear"
+        },
+        "$max": {
+          "name": "$max",
+          "value": 360,
+          "transition": "step"
+        }
+      },
+      "transition": null,
+      "priority": 120,
+      "center": "center"
+    }
+  ],
+  "elements": []
+}

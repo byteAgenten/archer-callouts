@@ -3,12 +3,12 @@
 .ac-anchor {
   position: absolute;
   box-sizing: border-box;
+  background-color: transparent;
 
   &.default {
 
     width: 16px;
     height: 16px;
-    background-color: lightgoldenrodyellow;
 
     .inner-circle {
       width: 40%;

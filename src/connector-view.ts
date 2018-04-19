@@ -1,5 +1,5 @@
 import {Callout} from "./callout";
-import {Point} from "./utils";
+import {Point, addClass} from "./utils";
 
 export abstract class ConnectorView {
 
@@ -13,6 +13,7 @@ export abstract class ConnectorView {
 
     public addToStage(): void {
         this._callout.container.appendChild(this._connectorEl);
+        if( this._callout.config.customClass != null) addClass(this._connectorEl, this._callout.config.customClass);
         this.hide();
         this._connectorEl.style.transform = 'scale(1)';
     }
@@ -65,10 +66,10 @@ export class DefaultConnectorView extends ConnectorView {
 
         this._layoutData.endPoint = this._callout.connector.weldingSeamView.layoutData.weldPoint;
 
-        console.log('startPoint');
-        console.log(this._layoutData.startPoint);
-        console.log('endPoint');
-        console.log(this._layoutData.endPoint);
+        //console.log('startPoint');
+        //console.log(this._layoutData.startPoint);
+        //console.log('endPoint');
+        //console.log(this._layoutData.endPoint);
         //console.log('start');
         //console.log(this._layoutData.startPoint);
         //console.log('end');

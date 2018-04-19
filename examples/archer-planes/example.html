@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>little-planes</title>
+
+    <style>
+
+        body {
+            margin: 0;
+        }
+
+        #container {
+
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+        }
+
+        #error {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="container"></div>
+
+<div id="error">
+    <h1>The graphic files could not be loaded</h1>
+    <p>Please note that this example may only work when served through a web server. The example code needs to dynamically load files which for security reasons is not allowed when serving from the file system.</p>
+</div>
+
+<!-- Include the runtime library -->
+<!-- NOTE: The Archer Runtime library is free for personal, non-commercial use and testing environments. -->
+<!-- For using the Archer Runtime library in production environments please visit https://archer.graphics to learn more about commercial licensing options. -->
+<script src='libs/archer.min.js'></script>
+
+<script language='javascript' type='text/javascript'>
+
+    /*
+    * NOTE: This example may only work when it is loaded through a web server. The example code needs to load the archer
+    * graphic file as well as the archer configuration file, which for security reasons is not allowed when loading the
+    * HTML file from the file system.
+    */
+
+    /**
+     * Root location where your interactive graphic is stored.
+     * Leave empty to resolve paths relative from this HTML.
+     * Can also contain an absolute URL to the server where your graphic is stored, for example:
+     * http://my-domain.com/graphics/my-graphic/
+     */
+    var rootUrl = '';
+
+    /**
+     * Location of the assets folder, by default resolved relative from root URL
+     */
+    var assetUrl = rootUrl + 'assets';
+
+    /**
+     * Location of the SVG file, by default resolved relative from root URL
+     */
+    var graphicUrl = rootUrl + 'archer.graphic.svg';
+
+    /**
+     * Location of the graphic configuration file, by default resolved relative from root URL
+     */
+    var configUrl = rootUrl + 'archer.config.json';
+
+    /**
+     * The container HTML element in which to display the graphic
+     */
+    var container = document.getElementById('container');
+
+    // Create a graphic instance over the container
+    var graphic = archer.create(container);
+
+    // Tell the graphic where assets (e.g. images) are located
+    graphic.document.setAssetRoot(assetUrl);
+
+    // Load graphic and configuration
+    graphic.loadUrl(graphicUrl, configUrl);
+
+    // Wait until files are loaded
+    graphic.on('ready', function () {
+
+        // Make graphic fit into container bounds
+        graphic.view.zoomToFit();
+
+        // Enable zoom / pan with mouse
+        graphic.view.enableMouse(true, true);
+
+        // Set variable values
+        graphic.setValue('plane-1-x', 0);
+        graphic.setValue('plane-1-y', 0);
+        graphic.setValue('plane-1-angle', 0);
+        graphic.setValue('plane-2-x', 0);
+        graphic.setValue('plane-2-y', 0);
+        graphic.setValue('plane-2-angle', 0);
+        graphic.setValue('plane-3-x', 0);
+        graphic.setValue('plane-3-y', 0);
+        graphic.setValue('plane-3-angle', 0);
+
+        // Add event listeners
+
+    });
+
+    // Files could not be loaded, maybe due to security restrictions
+    // Display error message
+    graphic.on('error', function() {
+        document.getElementById('error').style['display'] = 'block';
+    })
+
+</script>
+
+</body>
+</html>

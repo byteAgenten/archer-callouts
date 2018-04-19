@@ -55,8 +55,10 @@ export abstract class BodyView {
         this._bodyEl.style.transform = 'scale(1)';
 
         let rect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
-        this._layoutData.fullSize = rect.dimension;
 
+        this._layoutData.fullSize = rect.dimension;
+        console.log('----');
+        console.log(this._layoutData.fullSize);
         this._bodyEl.addEventListener('mousedown', this.onMouseDown);
     }
 
@@ -157,6 +159,9 @@ export abstract class BodyView {
 
     onMouseDown = (evt) => {
 
+        evt.stopImmediatePropagation();
+        evt.preventDefault();
+
         let containerBounds = this._callout.container.getBoundingClientRect();
 
         document.body.style.webkitUserSelect = 'none';
@@ -168,14 +173,20 @@ export abstract class BodyView {
 
         let onMouseMove = (evt: MouseEvent) => {
 
+            evt.stopImmediatePropagation();
+            evt.preventDefault();
+
             this.handlDragEvent(evt);
         };
         let onMouseUp = (evt: MouseEvent) => {
+
+
 
             this.handlDragEvent(evt);
 
             document.body.removeEventListener('mousemove', onMouseMove);
             document.body.removeEventListener('mouseup', onMouseUp);
+
 
 
             document.body.style.webkitUserSelect = null;
@@ -330,7 +341,13 @@ export abstract class BodyView {
 
         this.updateLayout();
 
-        this._callout.updatePosition(true);
+        setTimeout(()=>{
+            let rect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
+            this._layoutData.fullSize = rect.dimension;
+
+            this._callout.updatePosition(true);
+        });
+
     }
 }
 
