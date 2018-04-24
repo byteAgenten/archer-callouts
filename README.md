@@ -12,13 +12,13 @@ The following issues have to be done for the first major release:
 -	Optimize programming interface
 -	Add source code documentation
 
-##Build it
+## Build it
 ```
 > npm install
 > npm run-script build
 ```
 
-##Use it
+## Use it
 
 ```javascript
 //Get the container element for the callout
@@ -47,7 +47,7 @@ callout.updatePosition();
 callout.hide();
 ```
 
-##Example
+## Example
 See the little-planes example on [codepen.io](https://codepen.io/archer-graphics/pen/BxjmmX)
 
 ![little-planes](examples/little-planes/assets/screenshot_01.png)
