@@ -5,9 +5,9 @@ export class CalloutConfig {
 
     private _customClass:string;
 
-    private _xOffset:number = 50;
+    private _offsetX:number = 50;
 
-    private _yOffset:number = -50;
+    private _offsetY:number = -50;
 
     private _anchorX:number = 0.5;
 
@@ -28,20 +28,21 @@ export class CalloutConfig {
         this._customClass = value;
     }
 
-    get xOffset(): number {
-        return this._xOffset;
+
+    get offsetX(): number {
+        return this._offsetX;
     }
 
-    set xOffset(value: number) {
-        this._xOffset = value;
+    set offsetX(value: number) {
+        this._offsetX = value;
     }
 
-    get yOffset(): number {
-        return this._yOffset;
+    get offsetY(): number {
+        return this._offsetY;
     }
 
-    set yOffset(value: number) {
-        this._yOffset = value;
+    set offsetY(value: number) {
+        this._offsetY = value;
     }
 
     get anchorX(): number {

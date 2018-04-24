@@ -7,12 +7,15 @@ export abstract class AnchorView {
 
     private _layoutData: AnchorLayoutData = new AnchorLayoutData();
 
-    protected _offset: Point = new Point(-0.5, 0.5);
+    protected _offset: Point = new Point(0.5, 0.5);
 
     constructor(protected _callout: Callout) {
         this._anchorEl = document.createElement('div');
         this._anchorEl.setAttribute('class', 'ac-anchor');
-        if( this._callout.config.customClass != null) addClass(this._anchorEl, this._callout.config.customClass);
+        if (this._callout.config.customClass != null) addClass(this._anchorEl, this._callout.config.customClass);
+        if (this._callout.config.anchorX != null) this._offset.x = this._callout.config.anchorX;
+        if (this._callout.config.anchorY != null) this._offset.y = this._callout.config.anchorY;
+
     }
 
     public addToStage(): void {
@@ -61,7 +64,7 @@ export abstract class AnchorView {
         }
 
         let anchorCenter = new Point(
-            this._layoutData.boundElementRect.x2 + this._layoutData.boundElementRect.width * this._offset.x,
+            this._layoutData.boundElementRect.x1 + this._layoutData.boundElementRect.width * this._offset.x,
             this._layoutData.boundElementRect.y1 + this._layoutData.boundElementRect.height * this._offset.y
         );
 
@@ -69,9 +72,10 @@ export abstract class AnchorView {
         //let r = this._anchorEl.getBoundingClientRect();
         //console.log(r);
 
-        this._layoutData.rect = Rect.fromBounds(relBounds(this._callout.container, this._anchorEl));
-        //console.log('rect: ' + anchorCenter.x + '/' + anchorCenter.y + '   ' + this._layoutData.rect.width + '/' + this._layoutData.rect.height);
-
+        if (!this._fadingOut) {
+            this._layoutData.rect = Rect.fromBounds(relBounds(this._callout.container, this._anchorEl));
+            //console.log('rect: ' + anchorCenter.x + '/' + anchorCenter.y + '   ' + this._layoutData.rect.width + '/' + this._layoutData.rect.height);
+        }
         //console.log('this._layoutData.rect');
         //console.log(this._layoutData.rect);
 
@@ -93,6 +97,8 @@ export abstract class AnchorView {
         this._anchorEl.style.left = this._layoutData.rect.x1 + 'px';
         this._anchorEl.style.top = this._layoutData.rect.y1 + 'px';
     }
+
+    protected _fadingOut: boolean = false;
 
     public abstract fadeIn(): Promise<void>;
 
@@ -165,8 +171,10 @@ export class DefaultAnchorView extends AnchorView {
 
     public fadeOut(): Promise<void> {
 
+        this._fadingOut = true;
         return this.animate(false).then(() => {
             this.removeFromStage();
+            this._fadingOut = false;
         });
     }
 

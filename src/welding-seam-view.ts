@@ -11,7 +11,7 @@ export abstract class WeldingSeamView {
 
         this._el = document.createElement('div');
         this._el.setAttribute('class', 'ac-welding-seam');
-        if( this._callout.config.customClass != null) addClass(this._el, this._callout.config.customClass);
+        if (this._callout.config.customClass != null) addClass(this._el, this._callout.config.customClass);
     }
 
     public addToStage(): void {
@@ -26,11 +26,11 @@ export abstract class WeldingSeamView {
         this._el.remove();
     }
 
-    public show():void {
+    public show(): void {
         this._el.style.visibility = 'visible';
     }
 
-    public hide():void {
+    public hide(): void {
         this._el.style.visibility = 'hidden';
     }
 
@@ -71,7 +71,7 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         return this._layoutData.weldSide;
     }
 
-    public calculateLayout(): void {
+    private detectSeamSide(layoutData: WeldLayoutData): void {
 
         let anchorCenter = this._callout.connector.anchor.view.layoutData.rect.center;
         let bodyRect = this._callout.body.view.layoutData.rect;
@@ -83,14 +83,10 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         //console.log('^^^^^^^^^');
         //console.log(bodyFullSize);
 
+        let weldPoint = this._callout.body.view.layoutData.closestPoint;
 
-
-        this._layoutData.weldPoint = this._callout.body.view.layoutData.closestPoint;
-
-        let layoutData = new WeldLayoutData();
-
-        let a = this._layoutData.weldPoint.x - anchorCenter.x;
-        let b = this._layoutData.weldPoint.y - anchorCenter.y;
+        let a = weldPoint.x - anchorCenter.x;
+        let b = weldPoint.y - anchorCenter.y;
 
         layoutData.angle = Math.asin(b / Math.sqrt(a * a + b * b));
 
@@ -207,7 +203,20 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
                 );
             }
         }
-        this._layoutData = layoutData;
+    }
+
+    public calculateLayout(): void {
+
+        if (true) {
+
+            let layoutData = new WeldLayoutData();
+            this.detectSeamSide(layoutData);
+            this._layoutData = layoutData;
+
+        } else {
+
+        }
+
     }
 
     public updateLayout(): void {
@@ -253,7 +262,6 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
 
                 xOrigin = this.layoutData.transformOrigin == Direction.SouthEast ? 'right' : (this.layoutData.transformOrigin == Direction.SouthWest ? 'left' : 'center');
             }
-
 
 
             if (xOrigin != null) {
@@ -305,15 +313,18 @@ export class DefaultWeldingSeamView extends WeldingSeamView {
         });
     }
 
+    private animationRunning: boolean = false;
+
     public fadeIn(): Promise<void> {
 
-
+        this.animationRunning = true;
         return this.animate(true);
     }
 
     public fadeOut(): Promise<void> {
         return this.animate(false).then(() => {
             this.removeFromStage();
+            this.animationRunning = false;
         });
     }
 

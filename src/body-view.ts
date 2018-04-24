@@ -4,10 +4,11 @@ import {BodySection} from "./body-section";
 import {Direction, relBounds, relPos, Point, Rect, removeClass, addClass, Dimension} from "./utils";
 export abstract class BodyView {
 
+    protected _bodyContainerEl: HTMLElement;
     protected _bodyEl: HTMLElement;
     protected _sectionContainerEl: HTMLElement;
 
-    protected _relativePosition: Point = new Point(50, -80);
+    protected _relativePosition: Point = new Point(50, -50);
     protected _dragStartRelativePosition: Point = new Point(0, 0);
 
     protected _sections: Array<BodySection> = [];
@@ -25,12 +26,20 @@ export abstract class BodyView {
     protected _currentQuadrant: Direction;
 
     constructor(protected _callout: Callout) {
+        this._bodyContainerEl = document.createElement('div');
+        addClass(this._bodyContainerEl, 'ac-callout-body-container');
+
         this._bodyEl = document.createElement('div');
-        this._bodyEl.setAttribute('class', 'ac-callout-body');
+        addClass(this._bodyEl, 'ac-callout-body');
+
+        this._bodyContainerEl.appendChild(this._bodyEl);
+
         this._sectionContainerEl = document.createElement('div');
         this._sectionContainerEl.setAttribute('class', 'ac-callout-body-sections');
         this._bodyEl.appendChild(this._sectionContainerEl);
 
+        if (this._callout.config.offsetX != null) this._relativePosition.x = this._callout.config.offsetX;
+        if (this._callout.config.offsetY != null) this._relativePosition.y = this._callout.config.offsetY;
     }
 
     public get bounds(): ClientRect {
@@ -50,11 +59,11 @@ export abstract class BodyView {
 
     public addToStage(): void {
 
-        this._callout.container.appendChild(this._bodyEl);
+        this._callout.container.appendChild(this._bodyContainerEl);
         this.hide();
         this._bodyEl.style.transform = 'scale(1)';
 
-        let rect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
+        let rect = Rect.fromBounds(relBounds(this._callout.container, this._bodyContainerEl));
 
         this._layoutData.fullSize = rect.dimension;
         console.log('----');
@@ -65,15 +74,15 @@ export abstract class BodyView {
     public  removeFromStage(): void {
 
         this._bodyEl.removeEventListener('mousedown', this.onMouseDown);
-        this._bodyEl.remove();
+        this._bodyContainerEl.remove();
     }
 
     public show(): void {
-        this._bodyEl.style.visibility = 'visible';
+        this._bodyContainerEl.style.visibility = 'visible';
     }
 
     public hide(): void {
-        this._bodyEl.style.visibility = 'hidden';
+        this._bodyContainerEl.style.visibility = 'hidden';
     }
 
     protected calcClosestPoint(rect: Rect): Point {
@@ -212,7 +221,7 @@ export abstract class BodyView {
         let viewPos = anchorCenter.add(this._relativePosition);
         //console.log(viewPos);
 
-        currentRect = Rect.fromBounds(relBounds(this._callout.container, this._bodyEl));
+        currentRect = Rect.fromBounds(relBounds(this._callout.container, this._bodyContainerEl));
         let targetRect = currentRect.moveTo(viewPos);
 
         let containerRect = Rect.fromBounds(relBounds(this._callout.container, this._callout.container));
@@ -230,8 +239,8 @@ export abstract class BodyView {
 
     public updateLayout(): void {
 
-        this._bodyEl.style.left = this._layoutData.rect.x1 + 'px';
-        this._bodyEl.style.top = this._layoutData.rect.y1 + 'px';
+        this._bodyContainerEl.style.left = this._layoutData.rect.x1 + 'px';
+        this._bodyContainerEl.style.top = this._layoutData.rect.y1 + 'px';
 
         this.setWeldClasses();
     }
@@ -473,7 +482,7 @@ export class DefaultBodyView extends BodyView {
 
 
         return this.animate(false).then(() => {
-            this.removeFromStage();
+            this.hide();
         });
 
     }

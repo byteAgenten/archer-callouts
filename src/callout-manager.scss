@@ -77,12 +77,20 @@ $line-ending-radius: $line-width/2;
 
 }
 
-.ac-callout-body {
+.ac-callout-body-container {
 
   position: absolute;
   box-sizing: border-box;
-  top: 200px;
-  left: 200px;
+  border: none;
+
+}
+
+.ac-callout-body {
+
+  position: relative;
+  box-sizing: border-box;
+  top: 0px;
+  left: 0px;
   overflow: hidden;
 
   &.default {

@@ -168,6 +168,14 @@ export class Callout {
         this._visible = true;
     }
 
+    private removeFromStage():void {
+
+        this.body.view.removeFromStage();
+        this.connector.weldingSeamView.removeFromStage();
+        this.connector.view.removeFromStage();
+        this.connector.anchor.view.removeFromStage();
+    }
+
     public hide(): void {
 
 
@@ -181,14 +189,13 @@ export class Callout {
                 return this.connector.view.fadeOut();
             }).then(() => {
                 return this.connector.anchor.view.fadeOut();
+            }).then(()=> {
+                this.removeFromStage();
             });
 
         } else {
 
-            this.body.view.removeFromStage();
-            this.connector.weldingSeamView.removeFromStage();
-            this.connector.view.removeFromStage();
-            this.connector.anchor.view.removeFromStage();
+            this.removeFromStage();
         }
 
         this._offSiteIndicator.removeFromStage();

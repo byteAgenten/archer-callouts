@@ -1,56 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>little-planes</title>
 
     <style>
 
+
+
         body {
-            margin: 0;
+            margin: 20px;
+            font-family: "Courier New";
         }
 
         #container {
 
-            position: absolute;
+            position: relative;
 
             width: 800px;
             height: 400px;
-            top: 100px;
-            left: 100px;
             background-color: #aaaaff;
         }
 
-        #error {
-            display: none;
+
+        button {
+            border: 1px solid black;
+            border-radius: 0;
         }
 
         .ac-connector.default.plane .line {
-            background-color: green;
-            border-color: green;
+            background-color: #ffffff;
+            border-color: #ffffff;
         }
 
         .ac-welding-seam.default.plane {
-            background-color: green;
+            background-color: #ffffff;
         }
 
         .callout-header {
             padding: 4px 8px;
-            background-color: lightgreen;
+            background-color: #000000;
+            color: #ffffff;
+            min-width: 130px;
             font-weight: bold;
-            margin-bottom: 4px;
+            margin-bottom: 0;
+            font-size: 16pt;
+
         }
 
         .callout-body {
             padding: 4px 8px;
-            background-color: gold;
+            color: #ffffff;
+            font-size: 8pt;
+
         }
 
         .ac-anchor.default.plane .outer-circle {
-            border-color: green;
+            border-color: #ffffff;
         }
 
         .ac-anchor.default.plane .inner-circle {
-            background-color: green;
+            background-color: #ffffff;
+        }
+
+        .off-site-indicator {
+            font-size: 8pt;
+
+        }
+
+        .how-to {
+            font-size: 10pt;
+            display: flex;
+            font-weight:bold;
+        }
+
+        .how-to .key {
+
+        }
+
+        .how-to .description {
+            margin-right: 8pt;
+        }
+
+        .zoom-actions {
+            margin-bottom: 8px;
+        }
+
+        .plane-selection {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .plane-selection label {
+            font-weight: bold;
+            margin-right: 24px;
+        }
+
+        p, li {
+            font-size: 10pt;
         }
 
     </style>
@@ -58,22 +104,40 @@
 </head>
 <body>
 
-<select id="select-plane">
-
-</select>
-<button onclick="toggleCallout()">callout</button>
-
+<h1>archer-callouts.js</h1>
+<p>This example shows how archer-callouts.js works together with an archer graphic<p>
+<p>
+    <ul>
+    <li>choose a plane and change its direction, speed and hight</li>
+    <li>toggle the callout on and off and enjoy the nice and smooth in- and out-transition</li>
+    <li>watch what happens, if a callout reaches the edge of the visible area</li>
+    <li>zoom in the map and watch how a callout is handled, if the anchor is not in the visible area</li>
+    <li>use your mouse to drag the callout to another position - slow down or pause the plane before ;)</li>
+    </ul></p>
+<div class="plane-selection">
+    <div id="select-plane"></div>
+    <button onclick="toggleCallout()">toggle callout</button>
+</div>
+<div class="zoom-actions">
+    Map:
+    <button onclick="zoomIn()">zoom in</button>
+    <button onclick="zoomOut()">zoom out</button>
+    <button onclick="resetZoom()">reset zoom</button>
+</div>
 <div id="container"></div>
+<div class="how-to">
+    <div><span class="key">[&uarr;]</span><span class="description">Accelerate</span></div>
+    <div><span class="key">[&darr;]</span><span class="description">Break</span></div>
+    <div><span class="key">[&larr;]</span><span class="description">Rotate left</span></div>
+    <div><span class="key">[&rarr;]</span><span class="description">Rotate right</span></div>
+    <div><span class="key">[w]</span><span class="description">Rise</span></div>
+    <div><span class="key">[s]</span><span class="description">Fall</span></div>
+    <div><span class="key">[space]</span><span class="description">Pause</span></div>
 
-<div id="error">
-    <h1>The graphic files could not be loaded</h1>
-    <p>Please note that this example may only work when served through a web server. The example code needs to
-        dynamically load files which for security reasons is not allowed when serving from the file system.</p>
 </div>
 
-<!-- Include the runtime library -->
-<!-- NOTE: The Archer Runtime library is free for personal, non-commercial use and testing environments. -->
-<!-- For using the Archer Runtime library in production environments please visit https://archer.graphics to learn more about commercial licensing options. -->
+
+
 <script src='libs/archer.min.js'></script>
 <script src='../../dist/archer.callouts.min.js'></script>
 
@@ -127,31 +191,20 @@
 
     var lastRun = Date.now();
 
+    var fitZoomLevel;
+    var zoomLevel;
 
     // Wait until files are loaded
     graphic.on('ready', function () {
 
         // Make graphic fit into container bounds
         graphic.view.zoomToFit();
+        fitZoomLevel = graphic.view.zoomLevel;
+        zoomLevel = fitZoomLevel;
 
         // Enable zoom / pan with mouse
         graphic.view.enableMouse(true, true);
 
-
-        /*
-         callout = calloutManager.create(container);
-         callout.bind(element);
-         callout.show();
-
-         var headerSection = callout.sections[0];
-         headerSection.content = '<div class="callout-header">Plane 1</div>';
-
-         var bodySection = callout.sections[1];
-         bodySection.content = '<div class="callout-body">This is my little plane</div>';
-
-         callout.offSiteHtml = '<div>Somewhere here is a <i>plane</i></div>';
-
-         */
 
         var loop = function () {
 
@@ -162,36 +215,21 @@
                 plane.animate(timeDelta);
             }
 
-
-            /*
-             setTimeout(function () {
-             console.log('bbox:');
-             console.log(element.getBBox());
-             callout.updatePosition();
-             }, 1000);
-             */
-
-
             lastRun = Date.now();
             requestAnimationFrame(loop);
         };
 
         requestAnimationFrame(loop);
-        // Add event listeners
-
     });
 
-    // Files could not be loaded, maybe due to security restrictions
-    // Display error message
-    graphic.on('error', function () {
-        document.getElementById('error').style['display'] = 'block';
-    });
 
     var UP = 38;
     var RIGHT = 39;
     var DOWN = 40;
     var LEFT = 37;
     var SPACE = 32;
+    var W = 87;
+    var S = 83;
 
     window.onload = function (e) {
 
@@ -200,25 +238,36 @@
             evt.preventDefault();
             evt.stopImmediatePropagation();
 
+            console.log(evt.keyCode);
+            var planeIndex = document.querySelector('input[name="plane"]:checked').value;
+
             switch (evt.keyCode) {
                 case UP: {
-                    planes[planeSelector.selectedIndex].accelerate();
+                    planes[planeIndex].accelerate();
                     break;
                 }
                 case RIGHT: { //Right
-                    planes[planeSelector.selectedIndex].rotateRight();
+                    planes[planeIndex].rotateRight();
                     break;
                 }
                 case DOWN: { //Down
-                    planes[planeSelector.selectedIndex].break();
+                    planes[planeIndex].break();
                     break;
                 }
                 case LEFT: { //Left
-                    planes[planeSelector.selectedIndex].rotateLeft();
+                    planes[planeIndex].rotateLeft();
+                    break;
+                }
+                case W: { //Down
+                    planes[planeIndex].rise();
+                    break;
+                }
+                case S: { //Left
+                    planes[planeIndex].fall();
                     break;
                 }
                 case SPACE: {
-                    planes[planeSelector.selectedIndex].pause();
+                    planes[planeIndex].pause();
                     break;
                 }
             }
@@ -226,12 +275,14 @@
 
         document.addEventListener('keyup', function (evt) {
 
-            planes[planeSelector.selectedIndex].move();
+            var planeIndex = document.querySelector('input[name="plane"]:checked').value;
+            planes[planeIndex].move();
         });
     };
 
     var ROTATION_SPEED = 180; // 360° / s
-    var ACCELERATION = 0.8 // 0.1px / s^2
+    var ACCELERATION = 0.8; // 0.1px / s^2
+    var RISE_SPEED = 100; // 0.1px / s^2
 
     var MOVE = 0;
     var ROTATE_LEFT = 1;
@@ -239,16 +290,20 @@
     var ACCELERATE = 3;
     var BREAK = 4;
     var PAUSED = 5;
+    var RISE = 6;
+    var FALL = 7;
 
 
-    var Plane = function (key) {
+    var Plane = function (name, key) {
 
+        this._name = name;
         this._key = key;
-        this._moveSpeed = 0.1 + Math.random() * 0.4; // 1px / s
+        this._moveSpeed = 0.1 + Math.random() * 0.2; // 1px / s
         this._degree = Math.random() * 360;
         this._state = MOVE;
         this._xPos = Math.random() * 100;
         this._yPos = Math.random() * 50;
+        this._altitude = 66;
 
         this._callout = null;
     };
@@ -256,6 +311,30 @@
     Plane.prototype = {
         get key() {
             return this._key;
+        },
+        get name() {
+            return this._name;
+        },
+        formatLatLon: function (value, degCount, negate) {
+
+            var lat = degCount / 100 * value;
+            var totalSec = Math.round(lat * 60 * 60);
+            var sec = totalSec % 60;
+            var totalMin = (totalSec - sec) / 60;
+            var min = totalMin % 60;
+            var deg = (totalMin - min) / 60 - (degCount / 2);
+            var neg = negate ? deg > 0 : deg < 0;
+            deg = Math.abs(deg);
+
+            return (neg ? '-' : '+') + (deg < 100 ? '0' + ( deg < 10 ? '0' + deg : deg) : deg) + '&deg ' + (min < 10 ? '0' + min : min) + '\' ' + ' ' + (sec < 10 ? '0' + sec : sec) + '\'\'';
+        },
+        formatLatitude: function (value) {
+
+            return this.formatLatLon(value, 180, true);
+        },
+        formatLongitude: function (value) {
+
+            return this.formatLatLon(value, 360);
         }
     };
 
@@ -284,10 +363,19 @@
         this._state = ROTATE_RIGHT;
     };
 
+    Plane.prototype.rise = function () {
+        this._state = RISE;
+    };
+
+    Plane.prototype.fall = function () {
+        this._state = FALL;
+    };
+
     Plane.prototype.animate = function (timeDelta) {
 
         var moveSpeedIncrement = ACCELERATION * timeDelta;
         var rotateSpeedIncrement = ROTATION_SPEED * timeDelta;
+        var riseIncrement = RISE_SPEED * timeDelta;
 
         if (this._state == ACCELERATE) this._moveSpeed += moveSpeedIncrement;
         if (this._state == BREAK) this._moveSpeed -= moveSpeedIncrement;
@@ -298,6 +386,15 @@
         if (this._state == ROTATE_RIGHT) {
             this._degree += rotateSpeedIncrement;
             if (this._degree > 360) this._degree = rotateSpeedIncrement;
+        }
+        if (this._state == RISE) {
+            this._altitude += riseIncrement;
+            if (this._altitude > 100) this._altitude = 100;
+            console.log(this._altitude);
+        }
+        if (this._state == FALL) {
+            this._altitude -= riseIncrement;
+            if (this._altitude < 0) this._altitude = 0;
         }
 
         var rad = (this._degree / 360) * (2 * Math.PI);
@@ -314,25 +411,37 @@
         graphic.setValue(this._key + '-x', this._xPos);
         graphic.setValue(this._key + '-y', this._yPos);
         graphic.setValue(this._key + '-angle', this._degree);
+        graphic.setValue(this._key + '-altitude', this._altitude);
 
-        if( this._callout)  this._callout.updatePosition();
+
+        if (this._callout) {
+            var bodySection = this._callout.sections[1];
+            bodySection.content = '<div class="callout-body">'
+                + 'lon: ' + this.formatLongitude(this._xPos)
+                + '<br/>lat: ' + this.formatLatitude(this._yPos * 2)
+                + '<br/>deg: ' + Math.round(this._degree) + '&deg;'
+                + '&nbsp;alt: ' + Math.round(1000 + this._altitude * 115) + 'm<br/>'
+                + '</div>';
+            this._callout.updatePosition();
+        }
 
     };
+
 
     Plane.prototype.toggleCallout = function () {
 
         if (this._callout == null) {
 
-            this._callout = calloutManager.create(container, {customClass: 'plane'});
+            this._callout = calloutManager.create(container, {customClass: 'plane', offsetX: 50, offsetY: -100});
             this._callout.bind(graphic.element(this._key));
 
             var headerSection = this._callout.sections[0];
-            headerSection.content = '<div class="callout-header">' + this._key + '</div>';
+            headerSection.content = '<div class="callout-header">' + this._name + '</div>';
 
             var bodySection = this._callout.sections[1];
-            bodySection.content = '<div class="callout-body">asfsd</div>';
+            bodySection.content = '<div class="callout-body"><br/><br/><br/></div>';
 
-            this._callout.offSiteHtml = '<div>There is plane ' + this._key + '</div>';
+            this._callout.offSiteHtml = '<div>' + this._name + '</div>';
         }
 
         if (this._callout.visible) {
@@ -344,23 +453,59 @@
     };
 
     var planes = [
-        new Plane('plane-1'),
-        new Plane('plane-2'),
-        new Plane('plane-3')
+        new Plane('Plane A', 'plane-1'),
+        new Plane('Plane B', 'plane-2'),
+        new Plane('Plane C', 'plane-3')
     ];
 
     var planeSelector = document.getElementById('select-plane');
     for (var i = 0; i < planes.length; i++) {
 
-        var option = document.createElement('option');
-        option.innerHTML = planes[i].key;
-        planeSelector.appendChild(option);
+        //var option = document.createElement('option');
+        var input = document.createElement('input');
+        input.setAttribute('id',  planes[i].key);
+        input.setAttribute('type', 'radio');
+        input.setAttribute('name', 'plane');
+        input.setAttribute('value', i);
+        if( i == 0) input.checked = true;
+
+        var lbl = document.createElement('label');
+        lbl.setAttribute('for', planes[i].key);
+        lbl.innerHTML = planes[i].name;
+        //option.innerHTML = planes[i].key;
+        planeSelector.appendChild(input);
+        planeSelector.appendChild(lbl);
     }
 
     var toggleCallout = function () {
-        planes[planeSelector.selectedIndex].toggleCallout();
-    }
 
+        var planeIndex = document.querySelector('input[name="plane"]:checked').value;
+        console.log(planeIndex);
+        planes[planeIndex].toggleCallout();
+    };
+
+
+    var zoomIn = function () {
+
+        zoomLevel *= 1.5;
+        graphic.view.zoomTo(zoomLevel);
+    };
+
+    var zoomOut = function () {
+        zoomLevel /= 1.5;
+        if (zoomLevel < fitZoomLevel) {
+            resetZoom();
+        } else {
+            graphic.view.zoomTo(zoomLevel);
+        }
+
+    };
+
+    var resetZoom = function () {
+
+        zoomLevel = fitZoomLevel;
+        graphic.view.zoomToFit();
+    }
 
 </script>
 

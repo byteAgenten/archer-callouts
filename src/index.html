@@ -214,19 +214,15 @@
 
         });
 
+        var container = document.getElementById('app');
+
         var calloutManager = new ArcherCallouts.CalloutManager();
 
-        //var cl = new ArcherCallouts.Callout();
-        var container = document.getElementById('app');
-        callout = calloutManager.create(container);
+        callout = calloutManager.create(container, {anchorX: 1, anchorY: 0, offsetX:50, offsetY:0});
         callout.bind(targetEl);
 
-        var headerSection = callout.sections[0];
-        headerSection.content = '<div class="callout-header">hello</div>';
-
-        var bodySection = callout.sections[1];
-        bodySection.content = '<div class="callout-body">body</div>';
-
+        callout.sections[0].content = '<div class="callout-header">hello</div>';
+        callout.sections[1].content = '<div class="callout-body">body</div>';
         callout.offSiteHtml = '<div>There is a <i>callout!</i></div>';
 
         callout.show();
