@@ -49,4 +49,4 @@ callout.hide();
 
 ##Example
 
-![little-planes](https://wiki.archer.graphics/download/attachments/16121938/Bildschirmfoto%202018-04-24%20um%2008.53.46.png?version=1&modificationDate=1524552995776&api=v2)
+![little-planes](examples/little-planes/assets/screenshot_01.png)
