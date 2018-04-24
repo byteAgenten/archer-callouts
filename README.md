@@ -19,7 +19,7 @@ See the **little-planes** example on [codepen.io](https://codepen.io/archer-grap
 ![little-planes](examples/little-planes/assets/screenshot_01.png)
 
 ## Get it
-If you dont't want to build the library by your own, you can download or direct embed a ready to use, minified version of the library from our server: [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js)
+If you don't want to build the library by your own, you can download or direct embed a ready to use, minified version of the library from our server: [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js)
 
 Don't forget to add the archer callout css file [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.css](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.css).
 
