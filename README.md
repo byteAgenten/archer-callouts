@@ -12,6 +12,12 @@ The following issues have to be done for the first major release:
 -	Optimize programming interface
 -	Add source code documentation
 
+## See it
+
+See the **little-planes** example on [codepen.io](https://codepen.io/archer-graphics/pen/BxjmmX)
+
+![little-planes](examples/little-planes/assets/screenshot_01.png)
+
 ## Build it
 ```
 > npm install
@@ -47,7 +53,4 @@ callout.updatePosition();
 callout.hide();
 ```
 
-## Example
-See the **little-planes** example on [codepen.io](https://codepen.io/archer-graphics/pen/BxjmmX)
 
-![little-planes](examples/little-planes/assets/screenshot_01.png)
