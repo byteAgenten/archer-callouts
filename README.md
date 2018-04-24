@@ -57,5 +57,6 @@ callout.updatePosition();
 //Hide the callout
 callout.hide();
 ```
-
+## Configure it
+tbd...
 
