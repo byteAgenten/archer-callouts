@@ -48,5 +48,6 @@ callout.hide();
 ```
 
 ##Example
+See the little-planes example on [codepen.io](https://codepen.io/archer-graphics/pen/BxjmmX)
 
 ![little-planes](examples/little-planes/assets/screenshot_01.png)
