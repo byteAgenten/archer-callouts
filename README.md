@@ -12,7 +12,7 @@ The following issues have to be done for the first major release:
 -	Optimize programming interface
 -	Add source code documentation
 
-## See it
+## Watch it
 
 See the **little-planes** example on [codepen.io](https://codepen.io/archer-graphics/pen/BxjmmX)
 
