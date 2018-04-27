@@ -74,11 +74,11 @@ var callout = calloutManager.create(container, config);
 
 | Property | Description | 
 | --- | --- | 
-| customClass | A class name that is added to all elements of the callout. This is very useful for adapt the style of the callout to your needs |
-| offsetX | The horizontal offset in pixels of the callout body, relative to the top right corner of the source element. |
-| offsetY | The vertical offset in pixels of the callout body, relative to the top right corner of the source element. |
-| anchorOffsetX | The horizontal offset of the anchor relative to the top left corner of the source element. |
-| anchorOffsetY | The vertical offset of the anchor relative to the top left corner of the source element. |
+| customClass | A class name that is added to all elements of the callout. This is very useful for adapting the style of the callout to your needs |
+| offsetX | The horizontal offset (in pixels) of the callout body, relative to the top right corner of the source element. |
+| offsetY | The vertical offset (in pixels) of the callout body, relative to the top right corner of the source element. |
+| anchorOffsetX | The horizontal offset (in fraction of the source element width) of the anchor relative to the top left corner of the source element. |
+| anchorOffsetY | The vertical offset (in fraction of the source element height) of the anchor relative to the top left corner of the source element. |
 
 ## Style it
 //tbd...
