@@ -1,11 +1,11 @@
 # archer-callouts
 
-The **archer-callouts.js** is a small javascript library for easily creating fancy callout elements. 
-Basically, designed for the use in archer graphics it is completely independent from the archer-graphics.js library and can be used by its own in any html website.
+The **archer-callouts.js** is a small javascript library to easily create fancy callout elements. 
+Basically it is designed for the use in archer graphics, however it is completely independent from the archer-graphics.js library and can be used by its own in any html website.
 
-Even if the implementation is not perfect yet, it is already good enough for the most usual use cases. 
+Even if the implementation is not perfect yet, it is already good enough for the most common use cases. 
 
-The following issues have to be done for the first major release:
+The following issues are still to be done for the first major release:
 -	Improve render performance
 -	Remove unused legacy code
 -	Refactor code for better readability
@@ -51,7 +51,7 @@ callout.sections[1].content = '<p>This is a callout</p>';
 //Show the callout
 callout.show();
 
-//Call updatePosition() eache time the position of the source element changes
+//Call updatePosition() each time the position of the source element changes
 callout.updatePosition();
 
 //Hide the callout
