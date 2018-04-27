@@ -58,5 +58,28 @@ callout.updatePosition();
 callout.hide();
 ```
 ## Configure it
-tbd...
+You can do some basic adjustments by specifying a configuration
+object while creating the callout.
+
+```javascript
+var config = {
+    customClass: 'my-callout',
+    offsetX: 70,
+    offsetY: 40,
+    anchorOffsetX: 0.5,
+    anchorOffsetY: 0.5
+};
+var callout = calloutManager.create(container, config);
+```
+
+| Property | Description | 
+| --- | --- | 
+| customClass | A class name that is added to all elements of the callout. This is very useful for adapt the style of the callout to your needs |
+| offsetX | The horizontal offset in pixels of the callout body, relative to the top right corner of the source element. |
+| offsetY | The vertical offset in pixels of the callout body, relative to the top right corner of the source element. |
+| anchorOffsetX | The horizontal offset of the anchor relative to the top left corner of the source element. |
+| anchorOffsetY | The vertical offset of the anchor relative to the top left corner of the source element. |
+
+## Style it
+//tbd...
 
