@@ -58,5 +58,26 @@ callout.updatePosition();
 callout.hide();
 ```
 ## Configure it
-tbd...
 
+You can do some basic adjustments by specifying a configuration
+object while creating the callout.
+
+```javascript
+var config = {
+    customClass: 'my-callout',
+    offsetX: 70,
+    offsetY: 40,
+    anchorOffsetX: 0.5,
+    anchorOffsetY: 0.5
+};
+var callout = calloutManager.create(container, config);
+```
+
+| Property | Description | 
+| --- | --- | 
+| customClass | A class name that is added to all elements of the callout. This is very useful for adapt the style of the callout to your needs |
+*Still* | `renders` | **nicely**
+1 | 2 | 3
+
+## Style it
+//tbd...

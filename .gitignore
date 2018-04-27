@@ -8,3 +8,5 @@ dist
 dist_
 node_modules
 *.log
+*.zip
+
