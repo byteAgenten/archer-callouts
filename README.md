@@ -1,7 +1,7 @@
 # archer-callouts
 
 The **archer-callouts.js** is a small javascript library to easily create fancy callout elements. 
-Basically it is designed for the use in archer graphics, however it is completely independent from the archer-graphics.js library and can be used by its own in any html website.
+Basically it is designed for the use in archer graphics (http://archer.graphics), however it is completely independent from the archer-graphics.js library and can be used by its own in any html website.
 
 Even if the implementation is not perfect yet, it is already good enough for the most common use cases. 
 
