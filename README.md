@@ -19,7 +19,7 @@ See the **little-planes** example on [codepen.io](https://codepen.io/archer-grap
 ![little-planes](examples/little-planes/assets/screenshot_01.png)
 
 ## Get it
-If you don't want to build the library by your own, you can download or direct embed a ready to use, minified version of the library from our server: [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js)
+If you don't want to build the library by yourself, you can download or directly embed a ready to use, minified version of the library from our server: [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.min.js)
 
 Don't forget to add the archer callout css file [https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.css](https://cloud.archer.graphics/libs/archer-callouts/0.1.0/archer.callouts.css).
 
@@ -44,7 +44,8 @@ var callout = calloutManager.create(container);
 //Bind the callout to the source element
 callout.bind(sourceElement);
 
-//Set the content of the callout. Currently there are two sections that can //be set separately. Use html to format your content to your needs.
+//Set the content of the callout. Currently there are two sections that can
+//be set separately. Use html to format your content to your needs.
 callout.sections[0].content = '<h1>Title</h1>';
 callout.sections[1].content = '<p>This is a callout</p>';
 
